@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+
+omr
+detected.*
+.*.swp
+.*.swo
+.depend
