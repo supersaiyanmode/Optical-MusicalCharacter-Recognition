@@ -1,6 +1,7 @@
 #ifndef TEMPLATE_DETECTOR_H
 #define TEMPLATE_DETECTOR_H
 
+#include <vector>
 
 #include "SImage.h"
 #include "Symbols.h"
@@ -11,6 +12,6 @@ public:
 	TemplateDetector(const SDoublePlane& kernel);
 
 	std::vector<DetectedSymbol> find(double threshold);
-}
+};
 
 #endif
