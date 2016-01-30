@@ -1,11 +1,12 @@
-#include <SImage.h>
-#include <SImageIO.h>
 #include <cmath>
 #include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <DrawText.h>
+
+#include "DrawText.h"
+#include "SImage.h"
+#include "SImageIO.h"
 
 using namespace std;
 
@@ -58,21 +59,12 @@ void overlay_rectangle(
 // DetectedSymbol class may be helpful!
 //  Feel free to modify.
 //
-typedef enum {NOTEHEAD=0, QUARTERREST=1, EIGHTHREST=2} Type;
-class DetectedSymbol {
-public:
-	int row, col, width, height;
-	Type type;
-	char pitch;
-	double confidence;
-};
-
 // Function that outputs the ascii detection output file
 void  write_detection_txt(const string &filename, const vector<struct DetectedSymbol> &symbols)
 {
 	ofstream ofs(filename.c_str());
 
-	for(int i=0; i<symbols.size(); i++)
+	for(size_t i=0; i<symbols.size(); i++)
 	{
 		const DetectedSymbol &s = symbols[i];
 		ofs << s.row << " " << s.col << " " << s.width << " " << s.height << " ";
@@ -94,7 +86,7 @@ void  write_detection_image(const string &filename, const vector<DetectedSymbol>
 	for(int i=0; i<3; i++)
 		output_planes[i] = input;
 
-	for(int i=0; i<symbols.size(); i++)
+	for(size_t i=0; i<symbols.size(); i++)
 	{
 		const DetectedSymbol &s = symbols[i];
 
@@ -126,53 +118,6 @@ SDoublePlane convolve_separable(const SDoublePlane &input, const SDoublePlane &r
 {
 	SDoublePlane output(input.rows(), input.cols());
 
-	// Convolution code here
-
-	return output;
-}
-
-// Convolve an image with a separable convolution kernel
-//
-SDoublePlane convolve_general(const SDoublePlane &input, const SDoublePlane &filter)
-{
-	//Requires the dimension of the filter to be smaller than the input.
-	//Switch the parameters otherwise.
-	
-	if ((input.rows() - filter.rows()) * (input.cols() - filter.cols()) < 0) {
-		throw "Mismatched dimensions.";
-	}
-	if (input.rows() < filter.rows()) {
-		return convolve_general(filter, input);
-	}
-	
-	if (filter.rows()%2 == 0 || filter.cols()%2 == 0){
-		std::cerr<<"Rows/Columns in filter: "<<filter.rows()<<"/"<<filter.cols()<<std::endl;
-		throw "Expected an odd number of rows and columns in the filter";
-	}
-	//From here, we have ensured dimensions of input is larger than the filter.
-	
-	SDoublePlane output(input.rows(), input.cols());
-
-	int filter_rows_num = filter.rows(),
-		filter_cols_num = filter.cols(),
-		image_rows_num = input.rows(),
-		image_cols_num = input.cols();
-	int start_row = filter.rows()/2,
-		start_col = filter.cols()/2,
-		end_row = input.rows() - start_row,
-		end_col = input.cols() - start_col;
-	for (int i = start_row; i < end_row; i++) {
-		for (int j = start_col; j < end_col; j++) {
-			int sum = 0;
-			for (int p = 0; p < filter_rows_num; p++) {
-				for (int q = 0; q < filter_cols_num; q++) {
-					sum += input[i-filter_rows_num/2+p][j-filter_cols_num/2+q] * filter[p][q];
-				}
-			}
-			output[i+filter_rows_num/2][j+filter_cols_num/2] = sum;
-		}
-	}
-	
 	return output;
 }
 
@@ -217,10 +162,11 @@ int main(int argc, char *argv[])
 	SDoublePlane input_image= SImageIO::read_png_file(input_filename.c_str());
 
 	// test step 2 by applying mean filters to the input image
-	SDoublePlane mean_filter(3,3);
-	for(int i=0; i<3; i++)
-		for(int j=0; j<3; j++)
-			mean_filter[i][j] = 1/9.0;
+	SDoublePlane mean_filter(9,9);
+	for(int i=0; i<9; i++)
+		for(int j=0; j<9; j++)
+			mean_filter[i][j] = 1/81.0;
+
 	SDoublePlane output_image = convolve_general(input_image, mean_filter);
 
 
@@ -241,5 +187,5 @@ int main(int argc, char *argv[])
 	}
 
 	write_detection_txt("detected.txt", symbols);
-	write_detection_image("detected.png", symbols, input_image);
+	write_detection_image("detected.png", symbols, output_image);
 }
