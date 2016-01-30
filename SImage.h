@@ -1,9 +1,9 @@
 #ifndef __SIMAGE_H__
 #define __SIMAGE_H__
 
-#include <DTwoDimArray.h>
 #include <string.h>
 
+#include "DTwoDimArray.h"
 
 // A very simple image class.
 //

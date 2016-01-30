@@ -18,9 +18,10 @@
 using namespace std;
 
 #define PNG_DEBUG 3
-#include <png.h>
-
-#include <SImage.h>
+#include "png.h"
+#include "SImage.h"
+#include "Symbols.h"
+#include "utils.h"
 
 class SImageIO
 {
