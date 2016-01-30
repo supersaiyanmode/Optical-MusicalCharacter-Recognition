@@ -9,9 +9,10 @@
 //
 //
 //
+
 #include <math.h>
 #include "DrawText.h"
-
+#include "SImage.h"
 
 /*  GIMP header image file format (RGB): /Users/dave/maya/test_imgs/letters2.h  */
 
@@ -640,54 +641,46 @@ static const int num_cols=8;
 
 static int first=1;
 
-void draw_text(SDoublePlane &img, const char *str, int row, int col, int value, bool rev, int scale)
+void draw_text(SDoublePlane &img, const char *str, int row, int col, int value, int scale)
 {
-  static _DPlane<unsigned char> characters(height, width);
+	static SDoublePlane characters(height, width);
 
-  if(first)
-    {
-      char *data = header_data;
-      for(int i=0; i<height; i++)
-	for(int j=0; j<width; j++)
-	  {
-	    char pixel[4];
-
-	    HEADER_PIXEL(data, pixel);
-
-	    characters[i][j] = pixel[0];
-	  }
-
-      first=0;
-    }
-
-  for(size_t i=0; i<strlen(str); i++)
-    {
-      int char_no = str[i] - 33;
-
-      if(char_no < 0) 
+	if(first)
 	{
-	  col += chr_cols * scale;
-	  continue;
+		const char *data = header_data;
+		for(int i=0; i<height; i++)
+			for(int j=0; j<width; j++)
+			{
+				char pixel[4];
+
+				HEADER_PIXEL(data, pixel);
+
+				characters[i][j] = pixel[0];
+			}
+
+		first=0;
 	}
 
-      if(row >= 0 && col >= 0 && row + chr_rows < img.rows() && col + chr_cols < img.cols())
-	if(rev)
-	  {
-	    for(int i=0; i<chr_rows; i++)
-	      for(int j=0; j<chr_cols; j++)
+	for(size_t i=0; i<strlen(str); i++)
+	{
+		int char_no = str[i] - 33;
+
+		if(char_no < 0) 
 		{
-		  for(int ii=0; ii<scale; ii++)
-		    for(int jj=0; jj<scale; jj++)
-		      {
-			img[pt+DPoint(i,j)*scale+DPoint(ii,jj)]=characters[i][char_no*chr_cols+j];
-		      }
+			col += chr_cols * scale;
+			continue;
 		}
-	    //	    img.set_submatrix(pt, characters.extract(DRect(0, char_no*chr_cols, chr_rows-1, (char_no+1)*chr_cols-1)));
-	  }
-	else
-	  {
-	    img.set_submatrix(pt, (unsigned char)255 - characters.extract(DRect(0, char_no*chr_cols, chr_rows-1, (char_no+1)*chr_cols-1)));
-	  }
-      pt.col(col + chr_cols*scale);
-    }
+
+		if(row >= 0 && col >= 0 && row + chr_rows*scale < img.rows() && col + chr_cols*scale < img.cols())
+			for(int i=0; i<chr_rows; i++)
+				for(int j=0; j<chr_cols; j++)
+					for(int ii=0; ii<scale; ii++)
+						for(int jj=0; jj<scale; jj++)
+						{
+							img[row+i*scale+ii][col+j*scale+jj]=characters[i][char_no*chr_cols+j];
+						}
+
+		col = (col + chr_cols*scale);
+	}
 }
+
