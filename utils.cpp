@@ -1,6 +1,5 @@
 #include "utils.h"
 
-
 // Convolve an image with a separable convolution kernel
 //
 SDoublePlane convolve_general(const SDoublePlane &input, const SDoublePlane &filter)
@@ -22,23 +21,39 @@ SDoublePlane convolve_general(const SDoublePlane &input, const SDoublePlane &fil
 	
 	SDoublePlane output(input.rows(), input.cols());
 
-	size_t 	filter_rows_num = filter.rows(),
+	int 	filter_rows_num = filter.rows(),
 			filter_cols_num = filter.cols(),
 			image_rows_num = input.rows(),
 			image_cols_num = input.cols();
-	size_t 	start_row = filter.rows()/2,
+	int 	start_row = filter.rows()/2,
 			start_col = filter.cols()/2,
 			end_row = input.rows() - start_row,
 			end_col = input.cols() - start_col;
-	for (size_t i = start_row; i < end_row; i++) {
-		for (size_t j = start_col; j < end_col; j++) {
+
+	for (int i = 0; i < image_rows_num; i++) {
+		for (int j = 0; j < image_cols_num; j++) {
 			int sum = 0;
-			for (size_t p = 0; p < filter_rows_num; p++) {
-				for (size_t q = 0; q < filter_cols_num; q++) {
-					sum += input[i-filter_rows_num/2+p][j-filter_cols_num/2+q] * filter[p][q];
+			for (int p = -start_row; p <= start_row; p++) {
+				for (int q = -start_col; q <= start_col; q++) {
+					int x = i + p, y = j+q;
+					if (0 > x || x >= image_rows_num || 
+							0 > y || y >= image_cols_num) {
+						if (y < 0) {
+							y = -y;
+						} else if (y >= image_cols_num) {
+							y = 2*image_cols_num - y - 1;
+						}
+
+						if (x < 0) {
+							x = -x;
+						} else if (x >= image_rows_num) {
+							x = 2*image_rows_num - x - 1;
+						}
+					}
+					sum += input[x][y] * filter[p+start_row][q+start_col];
 				}
 			}
-			output[i+filter_rows_num/2][j+filter_cols_num/2] = sum;
+			output[i][j] = sum;
 		}
 	}
 	
