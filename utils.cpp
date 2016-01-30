@@ -2,6 +2,49 @@
 
 // Convolve an image with a separable convolution kernel
 //
+SDoublePlane convolve_separable(const SDoublePlane &input, const SDoublePlane &row_filter, const SDoublePlane &col_filter)
+{
+	
+	SDoublePlane output(input.rows(), input.cols());
+	int num_filter_rows = row_filter.rows();
+	int num_filter_cols = col_filter.cols();
+	int num_input_cols = input.rows();
+	int num_input_rows = input.cols();
+	int sum;
+	int k;
+	for(int i=0; i<= (num_input_rows - num_filter_rows);i++)
+	{
+		for(int m=0; m < num_input_cols; m++)
+		{
+			sum = 0;
+			k = m;
+			for(int j=0;j<num_filter_rows;j++)
+			{
+				sum += row_filter[j][0] * input[k][i];
+				k++;
+			}
+			output[(k+m)/2][m] = sum;
+		}
+	}
+	
+	for(int i=0; i< num_input_rows;i++)
+	{
+		for(int m=0; m <= (num_input_cols - num_filter_cols); m++)	
+		{	sum = 0;
+			k = m;
+			for(int j=0;j<num_filter_cols;j++)
+			{
+				sum += row_filter[0][j] * input[i][k];
+				k++;
+			}
+			output[i][(k+m)/2] = sum;
+		}
+	}
+	return output;
+}
+
+// Convolve an image with a general convolution kernel
+//
 SDoublePlane convolve_general(const SDoublePlane &input, const SDoublePlane &filter)
 {
 	//Requires the dimension of the filter to be smaller than the input.
