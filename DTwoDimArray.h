@@ -88,6 +88,17 @@ public:
 		return *this;
 	}
 
+	_DTwoDimArray<T>& operator+=(const _DTwoDimArray<T>& other) {
+		if (_rows != other.rows() || _cols != other.cols()) {
+			throw "Can not Add another image of different dimension.";
+		}
+		for (int i=0; i<_rows * _cols; i++) {
+			data_area[i] += other.data_area[i];
+		}
+
+		return *this;
+	}
+
 
 	///////////////////////////////////////////////////////
 	// element access
