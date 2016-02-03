@@ -50,7 +50,9 @@ SDoublePlane convolve_general(const SDoublePlane &input, const SDoublePlane &fil
 							x = 2*image_rows_num - x - 1;
 						}
 					}
-					sum += input[x][y] * filter[p+start_row][q+start_col];
+					sum += input[x][y] * 
+						filter[filter_rows_num - p - start_row - 1]
+							  [filter_cols_num - q - start_col - 1];
 				}
 			}
 			output[i][j] = sum;
@@ -60,4 +62,6 @@ SDoublePlane convolve_general(const SDoublePlane &input, const SDoublePlane &fil
 	return output;
 }
 
+SDoublePlane fourier(const SDoublePlane& input) {
 
+}
