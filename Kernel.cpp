@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iostream>
 
 #include "Kernel.h"
 
@@ -7,7 +8,8 @@ SDoublePlane load_kernel(const char* filename) {
 	int rows, cols;
 	double ratio;
 	if (!(in>>rows>>cols>>ratio)) {
-		throw "Failed to read kernel";
+		std::cerr<<"Failed reading kernel: "<<filename<<std::endl;
+		throw "Failed to read kernel:";
 	}
 	SDoublePlane kernel(rows, cols);
 	for (int i=0; i<rows; i++) {

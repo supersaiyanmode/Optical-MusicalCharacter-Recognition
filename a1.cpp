@@ -7,6 +7,7 @@
 #include "DrawText.h"
 #include "SImage.h"
 #include "SImageIO.h"
+#include "Kernel.h"
 
 using namespace std;
 
@@ -146,30 +147,17 @@ SDoublePlane find_edges(const SDoublePlane &input, double thresh=0)
 }
 
 
-//
-// This main file just outputs a few test images. You'll want to change it to do 
-//  something more interesting!
-//
-int main(int argc, char *argv[])
-{
-	if(!(argc == 2))
-	{
-		cerr << "usage: " << argv[0] << " input_image" << endl;
-		return 1;
-	}
-
-	string input_filename(argv[1]);
+int process(const char* filename) {
+	string input_filename(filename);
 	SDoublePlane input_image= SImageIO::read_png_file(input_filename.c_str());
 
 	
 	// test step 2 by applying mean filters to the input image
-	SDoublePlane mean_filter(9,9);
-	for(int i=0; i<9; i++)
-		for(int j=0; j<9; j++)
-			mean_filter[i][j] = 1/81.0;
-
-	SDoublePlane output_image = convolve_general(input_image, mean_filter);
-
+	SDoublePlane output_image = convolve_general(input_image, load_kernel("kernels/boxblur33"));
+	SDoublePlane sobelx = convolve_general(output_image, load_kernel("kernels/sobel3x"));
+	SDoublePlane sobely = convolve_general(output_image, load_kernel("kernels/sobel3y"));
+	output_image = sobelx;
+	output_image += sobely;
 
 	// randomly generate some detected symbols -- you'll want to replace this
 	//  with your symbol detection code obviously!
@@ -189,4 +177,24 @@ int main(int argc, char *argv[])
 
 	write_detection_txt("detected.txt", symbols);
 	write_detection_image("detected.png", symbols, output_image);
+	return 0;
+}
+
+//
+// This main file just outputs a few test images. You'll want to change it to do 
+//  something more interesting!
+//
+int main(int argc, char *argv[])
+{
+	if(!(argc == 2))
+	{
+		cerr << "usage: " << argv[0] << " input_image" << endl;
+		return 1;
+	}
+	try {
+		return process(argv[1]);
+	} catch (const char* err) {
+		std::cerr<<err<<std::endl;
+		return 1;
+	}
 }
