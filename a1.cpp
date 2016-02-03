@@ -114,7 +114,7 @@ void  write_detection_image(const string &filename, const vector<DetectedSymbol>
 
 // Convolve an image with a separable convolution kernel
 //
-SDoublePlane convolve_separable(const SDoublePlane &input, const SDoublePlane &row_filter, const SDoublePlane &col_filter)
+SDoublePlane convolve_separable1(const SDoublePlane &input, const SDoublePlane &row_filter, const SDoublePlane &col_filter)
 {
 	SDoublePlane output(input.rows(), input.cols());
 
@@ -161,6 +161,7 @@ int main(int argc, char *argv[])
 	string input_filename(argv[1]);
 	SDoublePlane input_image= SImageIO::read_png_file(input_filename.c_str());
 
+	
 	// test step 2 by applying mean filters to the input image
 	SDoublePlane mean_filter(9,9);
 	for(int i=0; i<9; i++)
