@@ -9,9 +9,9 @@
 class TemplateDetector {
 	SDoublePlane mainKernel, invertedKernel;
 public:
-	TemplateDetector(const SDoublePlane& kernel);
+	TemplateDetector(const SDoublePlane& kernel, double);
 
-	std::vector<DetectedSymbol> find(double threshold);
+	std::vector<DetectedSymbol> find(const SDoublePlane& image, double threshold);
 };
 
 #endif
