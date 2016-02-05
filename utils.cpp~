@@ -64,7 +64,7 @@ SDoublePlane flipxy(SDoublePlane input) {
 	return input;
 }
 
-/*SDoublePlane normalise_kernel(SDoublePlane input) {
+SDoublePlane normalise_kernel(SDoublePlane input) {
 	for(int k=0; k<input.rows(); k++){
 		for(int l=0; l<input.cols(); l++){
 			if(input.rows()%2==0){
@@ -79,7 +79,7 @@ SDoublePlane flipxy(SDoublePlane input) {
 	}
 	return input;
 }
-*/
+
 SDoublePlane non_maximum_suppression(const SDoublePlane& input) {
 	return input;
 }

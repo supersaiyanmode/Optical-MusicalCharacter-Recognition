@@ -163,7 +163,7 @@ int process(const char* filename) {
 	output_image = canny(output_image, 400, 0);
 	SImageIO::write_png_file("edges.png", output_image, output_image, output_image);
 
-	TemplateDetector detector(SImageIO::read_png_file("temp3.png"));
+	TemplateDetector detector(SImageIO::read_png_file("temp2.png"));
 	std::vector<DetectedSymbol> symbols = detector.find(input_image, 240);
 
 	HoughLinesDetector(200).find(output_image);
