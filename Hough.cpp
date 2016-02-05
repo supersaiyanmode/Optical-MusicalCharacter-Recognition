@@ -70,6 +70,17 @@ std::vector<Line> HoughLinesDetector::find(const SDoublePlane& input) {
 	SImageIO::write_png_file("_hough.png", hough, hough, hough);
 
 	hough = threshold(hough, _threshold, THRESH_ZERO, THRESH_RETAIN);
+	//hough = non_maximum_suppression(hough);
+	
+	for (int i=0; i<hough.rows(); i++) {
+		for (int j=0; j<hough.cols(); j++) {
+			if (!hough[i][j])
+				continue;
+			double r = (2.0 * i / r_bins - 1.0) * max_r / 2.0;
+			double theta = max_angle * j / angle_bins;
+			std::cout<<"Found a line with parameter: r="<<r<<", angle="<<theta<<std::endl;
+		}
+	}
 
 	return std::vector<Line>();
 }
