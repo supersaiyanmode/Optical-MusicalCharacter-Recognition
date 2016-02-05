@@ -31,7 +31,7 @@ SDoublePlane threshold(const SDoublePlane& input, double val, int low_val, int h
 	return image;
 }
 
-double max(const SDoublePlane& input) {
+double image_max(const SDoublePlane& input) {
 	double *start = input.data_ptr();
 	double *end = start + input.rows()*input.cols();
 	double *pos = std::max_element(start, end);
@@ -39,7 +39,7 @@ double max(const SDoublePlane& input) {
 }
 
 SDoublePlane normalise(SDoublePlane input) {
-	return input * (255.0/max(input));
+	return input * (255.0/image_max(input));
 }
 
 SDoublePlane flipxy(SDoublePlane input) {

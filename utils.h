@@ -8,6 +8,7 @@ SDoublePlane convolve_separable(const SDoublePlane &input, const SDoublePlane &r
 
 SDoublePlane threshold(const SDoublePlane& image, double val, int low_val, int high_val);
 
+double image_max(const SDoublePlane&); 
 SDoublePlane normalise(SDoublePlane input);
 
 SDoublePlane flipxy(SDoublePlane input);
