@@ -7,6 +7,7 @@
 #include "DrawText.h"
 #include "SImage.h"
 #include "SImageIO.h"
+#include "TemplateDetector.h"
 #include "Kernel.h"
 
 using namespace std;
@@ -159,24 +160,11 @@ int process(const char* filename) {
 	output_image = sobelx;
 	output_image += sobely;
 
-	// randomly generate some detected symbols -- you'll want to replace this
-	//  with your symbol detection code obviously!
-	vector<DetectedSymbol> symbols;
-	for(int i=0; i<10; i++)
-	{
-		DetectedSymbol s;
-		s.row = rand() % input_image.rows();
-		s.col = rand() % input_image.cols();
-		s.width = 20;
-		s.height = 20;
-		s.type = (Type) (rand() % 3);
-		s.confidence = rand();
-		s.pitch = (rand() % 7) + 'A';
-		symbols.push_back(s);
-	}
+	TemplateDetector detector(SImageIO::read_png_file("template1.png"));
+	std::vector<DetectedSymbol> symbols = detector.find(input_image, 240);
 
 	write_detection_txt("detected.txt", symbols);
-	write_detection_image("detected.png", symbols, output_image);
+	write_detection_image("detected.png", symbols, input_image);
 	return 0;
 }
 
