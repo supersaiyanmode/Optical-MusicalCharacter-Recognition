@@ -34,6 +34,10 @@ bool Line::vertical() {
 	return _vertical;
 }
 
+HoughLinesDetector::HoughLinesDetector(double thresh): _threshold(thresh) {
+
+}
+
 std::vector<Line> HoughLinesDetector::find(const SDoublePlane& input) {
 	SImageIO::write_png_file("_hough_input.png", input, input, input);
 	int rows = input.rows(), cols = input.cols();
@@ -64,6 +68,9 @@ std::vector<Line> HoughLinesDetector::find(const SDoublePlane& input) {
 	}
 	hough = normalise(hough);
 	SImageIO::write_png_file("_hough.png", hough, hough, hough);
+
+	hough = threshold(hough, _threshold, THRESH_ZERO, THRESH_RETAIN);
+
 	return std::vector<Line>();
 }
 

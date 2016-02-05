@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <numeric>
 #include "utils.h"
 
 SDoublePlane threshold(const SDoublePlane& input, double val, int low_val, int high_val) {
@@ -38,6 +39,12 @@ double image_max(const SDoublePlane& input) {
 	return (pos == end)? -1.0: *pos;
 }
 
+double image_sum(const SDoublePlane& input) {
+	double *start = input.data_ptr();
+	double *end = start + input.rows()*input.cols();
+	return std::accumulate(start, end, 0);
+}
+
 SDoublePlane normalise(SDoublePlane input) {
 	return input * (255.0/image_max(input));
 }
@@ -55,7 +62,7 @@ SDoublePlane flipxy(SDoublePlane input) {
 }
 
 SDoublePlane non_maximum_suppression(const SDoublePlane& input) {
-
+	return input;
 }
 
 // Convolve an image with a separable convolution kernel

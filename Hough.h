@@ -20,7 +20,9 @@ public:
 };
 
 class HoughLinesDetector {
+	double _threshold;
 public:
+	HoughLinesDetector(double);
 	std::vector<Line> find(const SDoublePlane& img);
 	
 };
