@@ -42,6 +42,18 @@ SDoublePlane normalise(SDoublePlane input) {
 	return input * (255.0/max(input));
 }
 
+SDoublePlane flipxy(SDoublePlane input) {
+	for (int i=0; i<input.rows()/2; i++) {
+		for (int j=0; j<input.cols()/2; j++) {
+			//std::cout<<"Flipping: "<<i<<" "<<j<<std::endl;
+			double temp = input[input.rows() - i - 1][input.cols() - j - 1];
+			input[input.rows() - i - 1][input.cols() - j - 1] = input[i][j];
+			input[i][j] = temp;
+		}
+	}
+	return input;
+}
+
 SDoublePlane non_maximum_suppression(const SDoublePlane& input) {
 
 }
