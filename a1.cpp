@@ -10,6 +10,7 @@
 #include "TemplateDetector.h"
 #include "Kernel.h"
 #include "Hough.h"
+#include "Canny.h"
 
 using namespace std;
 
@@ -158,16 +159,14 @@ int process(const char* filename) {
 	SDoublePlane output_image = convolve_general(input_image, load_kernel("kernels/gauss55"));
 	SImageIO::write_png_file("_smoothed.png", output_image, output_image, output_image);
 
-	SDoublePlane sobelx = convolve_general(output_image, load_kernel("kernels/sobel3x"));
-	SDoublePlane sobely = convolve_general(output_image, load_kernel("kernels/sobel3y"));
-	output_image = sobelx;
-	output_image += sobely;
+
+	output_image = canny(output_image, 400, 0);
+	SImageIO::write_png_file("edges.png", output_image, output_image, output_image);
 
 	TemplateDetector detector(SImageIO::read_png_file("template1.png"));
-	SImageIO::write_png_file("edges.png", output_image, output_image, output_image);
 	std::vector<DetectedSymbol> symbols = detector.find(input_image, 240);
 
-	HoughLinesDetector().find(output_image);
+	HoughLinesDetector(200).find(output_image);
 	write_detection_txt("detected.txt", symbols);
 	write_detection_image("detected.png", symbols, input_image);
 	return 0;
