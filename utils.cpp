@@ -1,6 +1,35 @@
 #include <algorithm>
 #include <numeric>
 #include "utils.h"
+#include "Kernel.h"
+#include "SImageIO.h"
+
+SDoublePlane score_using_edgemaps(const SDoublePlane& input) //question 5
+{
+	
+	SDoublePlane sobel_x_kernel = load_kernel("kernels/sobel3x");
+	SDoublePlane sobel_y_kernel = load_kernel("kernels/sobel3y");
+	
+	//getting an edge map of the image
+	SDoublePlane sobelx = convolve_general(input, sobel_x_kernel);
+	SDoublePlane sobely = convolve_general(input, sobel_y_kernel);
+	SDoublePlane sobel_img = sobelx + sobely;
+
+	//getting an edge map of the template
+	SDoublePlane template_image= SImageIO::read_png_file("edges.png");
+	for (int i=0; i<template_image.rows(); i++)
+	{
+		for(int j=0; j<template_image.cols(); j++)
+			cout<<"  "<<template_image[i][j];
+		cout<<endl;
+	}
+	sobelx = convolve_general(input, sobel_x_kernel);
+	sobely = convolve_general(input, sobel_y_kernel);
+	SDoublePlane sobel_template = sobelx + sobely;
+	
+	//SImageIO::write_png_file("tempTrial.png", temp, temp, temp);
+	return input;
+}
 
 SDoublePlane threshold(const SDoublePlane& input, double val, int low_val, int high_val) {
 	SDoublePlane image(input);
