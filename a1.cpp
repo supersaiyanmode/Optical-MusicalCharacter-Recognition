@@ -155,6 +155,9 @@ int process(const char* filename) {
 	SDoublePlane input_image= SImageIO::read_png_file(input_filename.c_str());
 
 	
+	//calculating the template matching score using edgemaps method
+	//SDoublePlane output_image = score_using_edgemaps(input_image);
+
 	// test step 2 by applying mean filters to the input image
 	SDoublePlane output_image = convolve_general(input_image, load_kernel("kernels/gauss55"));
 	SImageIO::write_png_file("_smoothed.png", output_image, output_image, output_image);
@@ -168,7 +171,8 @@ int process(const char* filename) {
 
 	HoughLinesDetector(200).find(output_image);
 	write_detection_txt("detected.txt", symbols);
-	write_detection_image("detected.png", symbols, input_image);
+	write_detection_image("detected.png", symbols, input_image); 
+	
 	return 0;
 }
 
