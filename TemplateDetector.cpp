@@ -4,7 +4,7 @@
 
 TemplateDetector::TemplateDetector(const SDoublePlane& kernel) {
 	//Write a for loop and invert every pixel and store into inverted Kernel object.
-	mainKernel = threshold(flipxy(kernel), 150, THRESH_ZERO, THRESH_MAX);
+	mainKernel = threshold(flipxy(kernel), 195, THRESH_ZERO, THRESH_MAX);//150
 	invertedKernel = mainKernel*-1 + 255;
 }
 

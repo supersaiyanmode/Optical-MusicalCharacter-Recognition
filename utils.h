@@ -13,6 +13,12 @@ SDoublePlane normalise(SDoublePlane input);
 SDoublePlane flipxy(SDoublePlane input);
 
 
+
+SDoublePlane score_using_edgemaps(const SDoublePlane& input);
+SDoublePlane convert_to_binary_edgemap(SDoublePlane input);
+SDoublePlane dist(SDoublePlane img);
+double f_gamma(double val);
+
 double image_max(const SDoublePlane&);
 double image_sum(const SDoublePlane&);
 

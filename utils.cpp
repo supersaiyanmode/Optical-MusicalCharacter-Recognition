@@ -1,34 +1,109 @@
 #include <algorithm>
 #include <numeric>
+//#include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <vector>
 #include "utils.h"
 #include "Kernel.h"
+#include "Canny.h"
+#include<cmath>
 #include "SImageIO.h"
+
+using namespace std;
 
 SDoublePlane score_using_edgemaps(const SDoublePlane& input) //question 5
 {
-	
-	SDoublePlane sobel_x_kernel = load_kernel("kernels/sobel3x");
-	SDoublePlane sobel_y_kernel = load_kernel("kernels/sobel3y");
-	
-	//getting an edge map of the image
-	SDoublePlane sobelx = convolve_general(input, sobel_x_kernel);
-	SDoublePlane sobely = convolve_general(input, sobel_y_kernel);
-	SDoublePlane sobel_img = sobelx + sobely;
 
-	//getting an edge map of the template
-	SDoublePlane template_image= SImageIO::read_png_file("edges.png");
-	for (int i=0; i<template_image.rows(); i++)
+	//generating binary edge maps
+	SDoublePlane image = convert_to_binary_edgemap(canny(input, 400, 0));
+	SDoublePlane temp = SImageIO::read_png_file("template1.png");
+	SDoublePlane image_template = convert_to_binary_edgemap(canny(input, 400, 0));
+
+	//calculating the the distance matrix D
+	cout<<"starting distance calculator.."<<endl;
+	SDoublePlane D_mat = dist(input);
+	cout<<"done with distance"<<endl;
+
+	//calculating the scores
+	SDoublePlane dist_score(input.rows(),input.cols());
+	cout<<"pushing the distance scores.."<<endl;
+	double sum = 0;
+	for(int i=0; i<input.rows(); i++)
 	{
-		for(int j=0; j<template_image.cols(); j++)
-			cout<<"  "<<template_image[i][j];
+		for(int j=0; j<input.cols(); j++)
+		{	
+			sum = 0;
+			for(int k=0; (i+k)<input.rows(); k++)
+			{
+				for(int l=0; (j+l)<input.cols(); l++)
+				{
+					sum += image_template[k][l] * D_mat[i+k][j+l];	
+				}
+			}
+			dist_score[i][j] = sum;
+		}	
+	}
+
+	cout<<endl<<"printing the values of the score matrix"<<endl;
+	for(int i=0; i<input.rows();i++)
+	{	for(int j=0; j<input.cols();j++)
+			{
+				cout<<dist_score[i][j]<<" ";
+			}
 		cout<<endl;
 	}
-	sobelx = convolve_general(input, sobel_x_kernel);
-	sobely = convolve_general(input, sobel_y_kernel);
-	SDoublePlane sobel_template = sobelx + sobely;
+
 	
-	//SImageIO::write_png_file("tempTrial.png", temp, temp, temp);
+	//SImageIO::write_png_file("BinarytempTrial.png", image, image, image);
 	return input;
+}
+
+double f_gamma(double val)
+{
+	if(val != 0)
+		return 0;
+	return INT_MAX;
+}
+
+SDoublePlane dist(SDoublePlane img)
+{
+	double min_dist = INT_MAX;
+	double temp;
+	SDoublePlane D(img.rows(), img.cols()); 
+	for(int i=0; i<img.rows(); i++)
+	{
+		for(int j=0; j<img.cols(); j++)
+		{	
+			min_dist = INT_MAX;
+			for(int a=0; a<img.rows(); a++)
+			{
+				for(int b=0; b<img.cols(); b++)
+				{
+					temp = f_gamma(img[a][b]) + sqrt( pow((i-a),2) + pow((j-b),2)) ;
+					if(temp < min_dist)
+						min_dist = temp;		
+				}
+			}
+			D[i][j] = min_dist;
+		}	
+	}
+
+	
+	
+	return D;
+}
+
+SDoublePlane convert_to_binary_edgemap(SDoublePlane img)
+{
+	for (int i=0; i<img.rows(); i++)
+	{
+		for(int j=0; j<img.cols(); j++)
+			if(img[i][j]!=0)
+				img[i][j]=1;
+	}
+	return img;
+
 }
 
 SDoublePlane threshold(const SDoublePlane& input, double val, int low_val, int high_val) {
@@ -89,6 +164,18 @@ SDoublePlane flipxy(SDoublePlane input) {
 	}
 	return input;
 }
+
+SDoublePlane** GM(int rows, int cols)
+{
+	SDoublePlane** final_image = new SDoublePlane*[rows];
+		
+	for(int i = 0; i < rows; i++)
+		final_image[i] = new SDoublePlane[cols];
+
+	return final_image;
+}
+
+
 
 SDoublePlane non_maximum_suppression(const SDoublePlane& input) {
 	return input;
@@ -164,10 +251,4 @@ SDoublePlane convolve_general(const SDoublePlane &input, const SDoublePlane &fil
 	}
 	
 	return output;
-}
-
-
-
-SDoublePlane fourier(const SDoublePlane& input) {
-
 }
