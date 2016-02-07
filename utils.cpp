@@ -3,7 +3,10 @@
 //#include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include "utils.h"
+
+using namespace std;
 
 SDoublePlane threshold(const SDoublePlane& input, double val, int low_val, int high_val) {
 	SDoublePlane image(input);
@@ -64,22 +67,57 @@ SDoublePlane flipxy(SDoublePlane input) {
 	return input;
 }
 
-/*SDoublePlane normalise_kernel(SDoublePlane input) {
-	for(int k=0; k<input.rows(); k++){
-		for(int l=0; l<input.cols(); l++){
-			if(input.rows()%2==0){
-			std::cout<<input.rows()<<std::endl;		
-			input.rows()+1;
-			std::cout<<"New count"<<input.rows()<<std::endl;
+SDoublePlane** GM(int rows, int cols)
+{
+	SDoublePlane** final_image = new SDoublePlane*[rows];
+		
+	for(int i = 0; i < rows; i++)
+		final_image[i] = new SDoublePlane[cols];
 
-			}
-			if(input.cols()%2==0)
-			input.cols()+1;
-		}
-	}
-	return input;
+	return final_image;
 }
-*/
+
+SDoublePlane** normalise_kernel(SDoublePlane input) {
+	
+	const int r=input.rows();
+	const int c=input.cols();
+
+	if (input.cols()%2 == 0 && input.rows()%2 == 0)
+	{
+		return GM(r+1, c+1);
+	}
+
+	
+		
+	/*else
+		return input;
+
+	for (int i = 0; i < r; i++)
+		for (int j = 0; j < c; j++)
+			final_image[i][j] = input[i][j];	
+
+	if(input.cols()%2==0 && input.rows()%2==0)
+	{
+		for(int i = 0; i < c; i++)
+			final_image[r][i] = input_image[r][i];
+
+		for(int i = 0; i < r; i++)
+			final_image[i][c] = input_image[i][c];
+	}
+	else if(input.cols()%2 == 0)
+	{
+		for(int i = 0; i < r; i++)
+			final_image[i][c] = input_image[i][c];
+	}
+	else if(input.rows()%2 == 0)
+	{
+		for(int i = 0; i < c; i++)
+			final_image[r][i] = input_image[r][i];	
+	}*/
+		
+}
+
+
 SDoublePlane non_maximum_suppression(const SDoublePlane& input) {
 	return input;
 }
@@ -154,10 +192,4 @@ SDoublePlane convolve_general(const SDoublePlane &input, const SDoublePlane &fil
 	}
 	
 	return output;
-}
-
-
-
-SDoublePlane fourier(const SDoublePlane& input) {
-
 }
