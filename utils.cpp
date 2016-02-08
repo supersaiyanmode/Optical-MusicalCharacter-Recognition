@@ -9,20 +9,22 @@
 #include "Canny.h"
 #include<cmath>
 #include "SImageIO.h"
+#include "TemplateDetector.h"
+
 
 using namespace std;
 
-SDoublePlane score_using_edgemaps(const SDoublePlane& input) //question 5
+std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input) //question 5
 {
 
 	//generating binary edge maps
-	SDoublePlane image = convert_to_binary_edgemap(canny(input, 400, 0));
+	SDoublePlane image_binary_edgemap = convert_to_binary_edgemap(canny(input, 400, 0));
 	SDoublePlane temp = SImageIO::read_png_file("template1.png");
-	SDoublePlane image_template = convert_to_binary_edgemap(canny(input, 400, 0));
+	SDoublePlane template_binary_edgemap = convert_to_binary_edgemap(canny(temp, 400, 0));
 
 	//calculating the the distance matrix D
 	cout<<"starting distance calculator.."<<endl;
-	SDoublePlane D_mat = dist(input);
+	SDoublePlane D_mat = dist(image_binary_edgemap);
 	cout<<"done with distance"<<endl;
 
 	//calculating the scores
@@ -34,11 +36,12 @@ SDoublePlane score_using_edgemaps(const SDoublePlane& input) //question 5
 		for(int j=0; j<input.cols(); j++)
 		{	
 			sum = 0;
-			for(int k=0; (i+k)<input.rows(); k++)
+			for(int k=0; k<temp.rows(); k++)
 			{
-				for(int l=0; (j+l)<input.cols(); l++)
+				for(int l=0;l<temp.cols(); l++)
 				{
-					sum += image_template[k][l] * D_mat[i+k][j+l];	
+					if((i+k) < input.rows() && (j+l)<input.cols())
+						sum += template_binary_edgemap[k][l] * D_mat[i+k][j+l];	
 				}
 			}
 			dist_score[i][j] = sum;
@@ -46,18 +49,32 @@ SDoublePlane score_using_edgemaps(const SDoublePlane& input) //question 5
 	}
 
 	cout<<endl<<"printing the values of the score matrix"<<endl;
-	for(int i=0; i<input.rows();i++)
-	{	for(int j=0; j<input.cols();j++)
-			{
-				if(dist_score[i][j]!=0)
-				cout<<dist_score[i][j]<<" ";
-			}
-		cout<<endl;
-	}
+	SImageIO::write_png_file("1234.png", dist_score, dist_score, dist_score);
+	
 
+	dist_score = threshold(dist_score, 400, 0, 260);
+	std::vector<DetectedSymbol> symbols;
+	for (int i=0; i<dist_score.rows(); i++) {
+		for (int j=0; j<dist_score.cols(); j++) {
+			if (dist_score[i][j] > 255 - 1) {
+				DetectedSymbol s;
+				s.row = i-10;
+				s.col = j-10;
+				s.width = 20;
+				s.height = 20;
+				s.type = (Type)1;
+				s.confidence = 0.7;
+				s.pitch = 'A';
+				symbols.push_back(s);
+			}
+		}
+	}
+	
+	
+	return symbols;
 	
 	//SImageIO::write_png_file("BinarytempTrial.png", image, image, image);
-	return input;
+	//return input;
 }
 
 double f_gamma(double val)
@@ -77,12 +94,13 @@ SDoublePlane dist(SDoublePlane img)
 	{
 		for(int j=0; j<img.cols(); j++)
 		{	
+			min_dist = INT_MAX;
 			if(img[i][j]>0)
 			{
 				D[i][j] = 0;
 				continue;
 			}
-			min_dist = INT_MAX;
+
 			for(int a=0; a<img.rows(); a++)
 			{
 				for(int b=0; b<img.cols(); b++)
@@ -102,8 +120,6 @@ SDoublePlane dist(SDoublePlane img)
 		}	
 	}
 
-	
-	
 	return D;
 }
 
