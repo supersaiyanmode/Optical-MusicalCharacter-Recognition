@@ -15,7 +15,6 @@
 #include <stdarg.h>
 #include <assert.h>
 #include <iostream>
-using namespace std;
 
 #define PNG_DEBUG 3
 #include "png.h"

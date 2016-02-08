@@ -1,8 +1,5 @@
 #include <cmath>
-#include <algorithm>
 #include <iostream>
-#include <fstream>
-#include <vector>
 
 #include "DrawText.h"
 #include "SImage.h"
@@ -12,6 +9,7 @@
 #include "Hough.h"
 #include "Canny.h"
 #include "utils.h"
+#include "detection_utils.h"
 
 using namespace std;
 
@@ -153,8 +151,7 @@ SDoublePlane find_edges(const SDoublePlane &input, double thresh=0)
 
 int process(const char* filename) {
 	const clock_t start = clock();
-	string input_filename(filename);
-	SDoublePlane input_image= SImageIO::read_png_file(input_filename.c_str());
+	SDoublePlane input_image= SImageIO::read_png_file(filename);
 
 	
 	//calculating the template matching score using edgemaps method
@@ -167,14 +164,23 @@ int process(const char* filename) {
 	output_image = canny(output_image, 400, 0);
 	SImageIO::write_png_file("edges.png", output_image, output_image, output_image);
 
-	TemplateDetector detector(SImageIO::read_png_file("temp3.png"));
-	std::vector<DetectedSymbol> symbols = detector.find(input_image, 240);
+	std::vector<DetectedSymbol> detected;
+	TemplateDetector detector1(SImageIO::read_png_file("template1.png"), NOTEHEAD);
+	std::vector<DetectedSymbol> symbols1 = detector1.find(input_image, 240);
+	detected.insert(detected.end(), symbols1.begin(), symbols1.end());
 
-	HoughLinesDetector(200).find(output_image);
-	write_detection_txt("detected.txt", symbols);
-	write_detection_image("detected.png", symbols, input_image); 
-	
-	cout<<endl<<"time taken : "<<float( clock() - start)/CLOCKS_PER_SEC;
+	TemplateDetector detector2(SImageIO::read_png_file("template2.png"), QUARTERREST);
+	std::vector<DetectedSymbol> symbols2 = detector2.find(input_image, 240);
+	detected.insert(detected.end(), symbols2.begin(), symbols2.end());
+
+	TemplateDetector detector3(SImageIO::read_png_file("template3.png"), EIGHTHREST);
+	std::vector<DetectedSymbol> symbols3 = detector3.find(input_image, 240);
+	detected.insert(detected.end(), symbols3.begin(), symbols3.end());
+
+	std::vector<Line> lines = HoughLinesDetector(200).find(output_image);
+	write_detection_txt("detected.txt", detected);
+	write_detection_image("detected.png", detected, input_image);
+	std::cout<<"Time taken: "<<float( clock() - start)/CLOCKS_PER_SEC<<std::endl;
 	return 0;
 }
 
@@ -186,7 +192,7 @@ int main(int argc, char *argv[])
 {
 	if(!(argc == 2))
 	{
-		cerr << "usage: " << argv[0] << " input_image" << endl;
+		std::cerr << "Usage: " << argv[0] << " input_image" << std::endl;
 		return 1;
 	}
 	try {

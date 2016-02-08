@@ -4,10 +4,11 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include<cmath>
+
 #include "utils.h"
 #include "Kernel.h"
 #include "Canny.h"
-#include<cmath>
 #include "SImageIO.h"
 #include "TemplateDetector.h"
 
@@ -184,7 +185,7 @@ SDoublePlane normalise(SDoublePlane input) {
 
 SDoublePlane flipxy(SDoublePlane input) {
 	for (int i=0; i<input.rows()/2; i++) {
-		for (int j=0; j<input.cols()/2; j++) {
+		for (int j=0; j<input.cols(); j++) {
 			//std::cout<<"Flipping: "<<i<<" "<<j<<std::endl;
 			double temp = input[input.rows() - i - 1][input.cols() - j - 1];
 			input[input.rows() - i - 1][input.cols() - j - 1] = input[i][j];
@@ -194,17 +195,31 @@ SDoublePlane flipxy(SDoublePlane input) {
 	return input;
 }
 
-SDoublePlane** GM(int rows, int cols)
-{
-	SDoublePlane** final_image = new SDoublePlane*[rows];
-		
-	for(int i = 0; i < rows; i++)
-		final_image[i] = new SDoublePlane[cols];
+SDoublePlane normalise_kernel(const SDoublePlane& input) {
+	SImageIO::write_png_file("_before-normalise.png", input, input, input);
+	if (input.cols()%2 == 1 && input.rows()%2 == 1) {
+		return input;
+	}
 
-	return final_image;
+	SDoublePlane output(input.rows()|1, input.cols()|1);
+
+	for (int i=0; i<input.rows(); i++) {
+		memcpy(output[i], input[i], sizeof(output[i][0]) * input.cols());
+	}
+
+	if (input.rows() + 1 == output.rows()) {
+		memcpy(output[output.rows()-1], input[input.rows()-1], sizeof(output[0][0]) * input.cols());
+	}
+
+	if (input.cols() + 1 == output.cols()) {
+		for (int i=0; i<output.rows(); i++) {
+			output[i][output.cols()-1] = input[i][input.cols()-1];
+		}
+	}
+
+	SImageIO::write_png_file("_after-normalise.png", output, output, output);
+	return output;
 }
-
-
 
 SDoublePlane non_maximum_suppression(const SDoublePlane& input) {
 	return input;

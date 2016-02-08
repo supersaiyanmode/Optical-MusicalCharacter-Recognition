@@ -13,7 +13,7 @@ SDoublePlane normalise(SDoublePlane input);
 
 SDoublePlane flipxy(SDoublePlane input);
 
-
+SDoublePlane normalise_kernel(const SDoublePlane& input);
 
 std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input);
 SDoublePlane convert_to_binary_edgemap(SDoublePlane input);
