@@ -12,6 +12,8 @@ void overlay_rectangle(
 		int _top, int _left, int _bottom, int _right,
 		double graylevel, int width)
 {
+	using std::min;
+	using std::max;
 	for(int w=-width/2; w<=width/2; w++) {
 		int top = _top+w, 
 		left = _left+w,
@@ -74,7 +76,7 @@ void draw_line(SDoublePlane& R, SDoublePlane& G, SDoublePlane& B,
 	}
 }
 
-void  write_detection_txt(const string &filename, const std::vector<struct DetectedSymbol> &symbols)
+void  write_detection_txt(const std::string &filename, const std::vector<struct DetectedSymbol> &symbols)
 {
 	std::ofstream ofs(filename.c_str());
 
@@ -88,12 +90,12 @@ void  write_detection_txt(const string &filename, const std::vector<struct Detec
 			ofs << "eighth_rest _";
 		else 
 			ofs << "quarter_rest _";
-		ofs << " " << s.confidence << endl;
+		ofs << " " << s.confidence << std::endl;
 	}
 }
 
 // Function that outputs a visualization of detected symbols
-void  write_detection_image(const string &filename,
+void  write_detection_image(const std::string &filename,
 					const std::vector<DetectedSymbol> &symbols,
 					const SDoublePlane &input)
 {
