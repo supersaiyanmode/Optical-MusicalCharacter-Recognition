@@ -1,7 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
-
+#include <vector>
 #include "SImage.h"
+#include "Symbols.h"
 
 SDoublePlane convolve_general(const SDoublePlane& input, const SDoublePlane& filter);
 SDoublePlane convolve_separable(const SDoublePlane &input, const SDoublePlane &row_filter, const SDoublePlane &col_filter);
@@ -14,7 +15,7 @@ SDoublePlane flipxy(SDoublePlane input);
 
 
 
-SDoublePlane score_using_edgemaps(const SDoublePlane& input);
+std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input);
 SDoublePlane convert_to_binary_edgemap(SDoublePlane input);
 SDoublePlane dist(SDoublePlane img);
 double f_gamma(double val);
