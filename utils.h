@@ -12,7 +12,7 @@ SDoublePlane normalise(SDoublePlane input);
 
 SDoublePlane flipxy(SDoublePlane input);
 
-SDoublePlane normalise_kernel(SDoublePlane input);
+SDoublePlane normalise_kernel(const SDoublePlane& input);
 
 
 double image_max(const SDoublePlane&);

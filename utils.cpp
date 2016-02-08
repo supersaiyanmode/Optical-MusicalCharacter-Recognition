@@ -4,7 +4,9 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+
 #include "utils.h"
+#include "SImageIO.h"
 
 using namespace std;
 
@@ -57,7 +59,7 @@ SDoublePlane normalise(SDoublePlane input) {
 
 SDoublePlane flipxy(SDoublePlane input) {
 	for (int i=0; i<input.rows()/2; i++) {
-		for (int j=0; j<input.cols()/2; j++) {
+		for (int j=0; j<input.cols(); j++) {
 			//std::cout<<"Flipping: "<<i<<" "<<j<<std::endl;
 			double temp = input[input.rows() - i - 1][input.cols() - j - 1];
 			input[input.rows() - i - 1][input.cols() - j - 1] = input[i][j];
@@ -67,54 +69,30 @@ SDoublePlane flipxy(SDoublePlane input) {
 	return input;
 }
 
-SDoublePlane** GM(int rows, int cols)
-{
-	SDoublePlane** final_image = new SDoublePlane*[rows];
-		
-	for(int i = 0; i < rows; i++)
-		final_image[i] = new SDoublePlane[cols];
-
-	return final_image;
-}
-
-SDoublePlane** normalise_kernel(SDoublePlane input) {
-	
-	const int r=input.rows();
-	const int c=input.cols();
-
-	if (input.cols()%2 == 0 && input.rows()%2 == 0)
-	{
-		return GM(r+1, c+1);
-	}
-
-	
-		
-	/*else
+SDoublePlane normalise_kernel(const SDoublePlane& input) {
+	SImageIO::write_png_file("_before-normalise.png", input, input, input);
+	if (input.cols()%2 == 1 && input.rows()%2 == 1) {
 		return input;
-
-	for (int i = 0; i < r; i++)
-		for (int j = 0; j < c; j++)
-			final_image[i][j] = input[i][j];	
-
-	if(input.cols()%2==0 && input.rows()%2==0)
-	{
-		for(int i = 0; i < c; i++)
-			final_image[r][i] = input_image[r][i];
-
-		for(int i = 0; i < r; i++)
-			final_image[i][c] = input_image[i][c];
 	}
-	else if(input.cols()%2 == 0)
-	{
-		for(int i = 0; i < r; i++)
-			final_image[i][c] = input_image[i][c];
+
+	SDoublePlane output(input.rows()|1, input.cols()|1);
+
+	for (int i=0; i<input.rows(); i++) {
+		memcpy(output[i], input[i], sizeof(output[i][0]) * input.cols());
 	}
-	else if(input.rows()%2 == 0)
-	{
-		for(int i = 0; i < c; i++)
-			final_image[r][i] = input_image[r][i];	
-	}*/
-		
+
+	if (input.rows() + 1 == output.rows()) {
+		memcpy(output[output.rows()-1], input[input.rows()-1], sizeof(output[0][0]) * input.cols());
+	}
+
+	if (input.cols() + 1 == output.cols()) {
+		for (int i=0; i<output.rows(); i++) {
+			output[i][output.cols()-1] = input[i][input.cols()-1];
+		}
+	}
+
+	SImageIO::write_png_file("_after-normalise.png", output, output, output);
+	return output;
 }
 
 
