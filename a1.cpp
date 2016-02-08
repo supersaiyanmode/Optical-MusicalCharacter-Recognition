@@ -151,6 +151,7 @@ SDoublePlane find_edges(const SDoublePlane &input, double thresh=0)
 
 
 int process(const char* filename) {
+	const clock_t start = clock();
 	string input_filename(filename);
 	SDoublePlane input_image= SImageIO::read_png_file(input_filename.c_str());
 
@@ -173,6 +174,7 @@ int process(const char* filename) {
 	write_detection_txt("detected.txt", symbols);
 	write_detection_image("detected.png", symbols, input_image); 
 	
+	cout<<endl<<"time taken : "<<float( clock() - start)/CLOCKS_PER_SEC;
 	return 0;
 }
 

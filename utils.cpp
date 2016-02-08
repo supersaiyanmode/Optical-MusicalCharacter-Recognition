@@ -49,6 +49,7 @@ SDoublePlane score_using_edgemaps(const SDoublePlane& input) //question 5
 	for(int i=0; i<input.rows();i++)
 	{	for(int j=0; j<input.cols();j++)
 			{
+				if(dist_score[i][j]!=0)
 				cout<<dist_score[i][j]<<" ";
 			}
 		cout<<endl;
@@ -70,17 +71,29 @@ SDoublePlane dist(SDoublePlane img)
 {
 	double min_dist = INT_MAX;
 	double temp;
+	double gamma_val;
 	SDoublePlane D(img.rows(), img.cols()); 
 	for(int i=0; i<img.rows(); i++)
 	{
 		for(int j=0; j<img.cols(); j++)
 		{	
+			if(img[i][j]>0)
+			{
+				D[i][j] = 0;
+				continue;
+			}
 			min_dist = INT_MAX;
 			for(int a=0; a<img.rows(); a++)
 			{
 				for(int b=0; b<img.cols(); b++)
 				{
-					temp = f_gamma(img[a][b]) + sqrt( pow((i-a),2) + pow((j-b),2)) ;
+					if( i==a && j==b)
+						continue;
+					if(img[a][b] != 0)
+						gamma_val = 0;
+					else
+						gamma_val = INT_MAX;
+					temp = gamma_val + sqrt( ((i-a)*(i-a)) + ((j-b)*(j-b))) ;
 					if(temp < min_dist)
 						min_dist = temp;		
 				}
