@@ -16,10 +16,13 @@ int process(const char* filename) {
 
 	
 	//calculating the template matching score using edgemaps method
-	//SDoublePlane output_image = score_using_edgemaps(input_image);
+
+	std::vector<DetectedSymbol> symbols2 = score_using_edgemaps(input_image);
+	write_detection_txt("detected_score_using_edgemaps.txt", symbols2);
+	write_detection_image("detectedscore_using_edgemaps.png", symbols2, input_image);
 
 	// test step 2 by applying mean filters to the input image
-	SDoublePlane output_image = convolve_general(input_image, load_kernel("kernels/gauss55"));
+	/*SDoublePlane output_image = convolve_general(input_image, load_kernel("kernels/gauss55"));
 	SImageIO::write_png_file("_smoothed.png", output_image, output_image, output_image);
 
 
@@ -41,7 +44,7 @@ int process(const char* filename) {
 
 	std::vector<Line> lines = HoughLinesDetector(200).find(output_image);
 	write_detection_txt("detected.txt", detected);
-	write_detection_image("detected.png", detected, input_image);
+	write_detection_image("detected.png", detected, input_image);*/
 	std::cout<<"Time taken: "<<float( clock() - start)/CLOCKS_PER_SEC<<std::endl;
 	return 0;
 }
