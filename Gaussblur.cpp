@@ -8,6 +8,9 @@ Gaussblur::Gaussblur(int size){
 	if(size==5){
 		gaussx = load_kernel("kernels/gauss5x");
 		gaussy = load_kernel("kernels/gauss5y");
+	} else { //The same kernels for now
+		gaussx = load_kernel("kernels/gauss5x");
+		gaussy = load_kernel("kernels/gauss5y");
 	}
 }
 

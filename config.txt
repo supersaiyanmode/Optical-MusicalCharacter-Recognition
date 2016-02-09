@@ -1,0 +1,4 @@
+canny.low_thresh 300
+canny.high_thresh 1000
+hough.thresh 200
+

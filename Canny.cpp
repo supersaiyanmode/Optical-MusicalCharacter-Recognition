@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "Kernel.h"
 #include "SImageIO.h"
-
+#include "A1Debug.h"
 
 #define DIR_NORTH 0
 #define DIR_NORTH_EAST 1
@@ -31,7 +31,7 @@ SDoublePlane canny(const SDoublePlane& image, double low_thresh, double high_thr
 	_DTwoDimArray<int> angle(image.rows(), image.cols());
 
 	SDoublePlane temp = sobelx + sobely;
-	SImageIO::write_png_file("sobel.png", temp, temp, temp);
+	debug_png("sobel.png", temp);
 
 	for (int i=0; i<image.rows(); i++) {
 		for (int j=0; j<image.cols(); j++) {
@@ -56,7 +56,7 @@ SDoublePlane canny(const SDoublePlane& image, double low_thresh, double high_thr
 		}
 	}
 
-	SImageIO::write_png_file("_magnitude.png", magnitude, magnitude, magnitude);
+	debug_png("canny_magnitude.png", magnitude);
 
 	for (int i=0; i<output.rows(); i++) {
 		for (int j=0; j<output.cols(); j++) {

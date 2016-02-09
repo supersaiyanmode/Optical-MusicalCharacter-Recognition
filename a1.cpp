@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 
+#include "A1Debug.h"
 #include "DrawText.h"
 #include "SImage.h"
 #include "SImageIO.h"
@@ -11,22 +12,21 @@
 #include "utils.h"
 #include "detection_utils.h"
 #include "Gaussblur.h"
+#include "Config.h"
 
 int process(const char* filename) {
+	Config config("config.txt");
 	const clock_t start = clock();
 	SDoublePlane input_image= SImageIO::read_png_file(filename);
 	Gaussblur gauss(5);
 
-	
-	//calculating the template matching score using edgemaps method
-	
-	// test step 2 by applying mean filters to the input image
 	SDoublePlane smoothed_image = gauss.blur(input_image);
-	SImageIO::write_png_file("_smoothed.png", smoothed_image, smoothed_image, smoothed_image);
+	debug_png("gauss.png", smoothed_image);
 
-
-	SDoublePlane canny_image = canny(smoothed_image, 400, 0);
-	SImageIO::write_png_file("edges.png", canny_image,  canny_image,  canny_image);
+	SDoublePlane canny_image = canny(smoothed_image,
+						config.get<double>("canny.low_thresh"), 
+						config.get<double>("canny.high_thresh"));
+	debug_png("canny.png", canny_image);
 
 	std::vector<DetectedSymbol> detected;
 	TemplateDetector detector1(SImageIO::read_png_file("template1.png"), NOTEHEAD);
@@ -41,9 +41,14 @@ int process(const char* filename) {
 	std::vector<DetectedSymbol> symbols3 = detector3.find(smoothed_image, 240);
 	detected.insert(detected.end(), symbols3.begin(), symbols3.end());
 
-	std::vector<Line> lines = HoughLinesDetector(200).find(canny_image);
+	HoughLinesDetector hough(config.get<double>("hough.thresh"));
+	std::vector<int> lines = hough.find(canny_image);
+	for (std::vector<int>::iterator it=lines.begin(); it  != lines.end(); it++) {
+		draw_line(input_image, input_image, input_image, *it, 0, *it, input_image.cols(), 100, 100, 100);
+	}
+
 	write_detection_txt("detected.txt", detected);
-	write_detection_image("detected.png", detected, input_image);
+	write_detection_image("detected.png", std::vector<DetectedSymbol>(), input_image);
 	std::cout<<"Time taken: "<<float( clock() - start)/CLOCKS_PER_SEC<<std::endl;
 	return 0;
 }

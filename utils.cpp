@@ -11,7 +11,7 @@
 #include "Canny.h"
 #include "SImageIO.h"
 #include "TemplateDetector.h"
-
+#include "A1Debug.h"
 
 using namespace std;
 
@@ -196,7 +196,7 @@ SDoublePlane flipxy(SDoublePlane input) {
 }
 
 SDoublePlane normalise_kernel(const SDoublePlane& input) {
-	SImageIO::write_png_file("_before-normalise.png", input, input, input);
+	debug_png("before-normalise-kernel.png", input);
 	if (input.cols()%2 == 1 && input.rows()%2 == 1) {
 		return input;
 	}
@@ -217,7 +217,7 @@ SDoublePlane normalise_kernel(const SDoublePlane& input) {
 		}
 	}
 
-	SImageIO::write_png_file("_after-normalise.png", output, output, output);
+	debug_png("after-normalise-kernel.png", output);
 	return output;
 }
 
@@ -231,7 +231,7 @@ SDoublePlane convolve_separable(const SDoublePlane &input, const SDoublePlane &r
 {
 	SDoublePlane output(input.rows(), input.cols());
 
-	output = convolve_general(output, row_filter);
+	output = convolve_general(input, row_filter);
 	return convolve_general(output, col_filter);
 }
 
