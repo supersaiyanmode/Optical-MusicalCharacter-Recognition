@@ -1,4 +1,6 @@
 canny.low_thresh 300
 canny.high_thresh 1000
 hough.thresh 200
+hough.min_angle 0
+hough.max_angle 0.001
 
