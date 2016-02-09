@@ -47,8 +47,10 @@ std::vector<int> HoughLinesDetector::find(const SDoublePlane& input, const SDoub
 
 	int angle_bins = config.get<int>("hough.angle_bins");
 	double max_angle = M_PI;
-	int r_bins = std::min(input.rows(), config.get<int>("hough.r_bins_max"));
 	int max_r = 2*(int)(std::sqrt(rows*rows + cols*cols)+1) + 2;
+	int r_bins = std::min(max_r, config.get<int>("hough.r_bins_max"));
+	r_bins = max_r;
+
 
 	double min_line_angle = config.get<double>("hough.min_angle");
 	double max_line_angle = config.get<double>("hough.max_angle");
@@ -98,7 +100,7 @@ std::vector<int> HoughLinesDetector::find(const SDoublePlane& input, const SDoub
 	SDoublePlane paintR(orig), paintG(orig), paintB(orig);
 	
 	for (std::vector<int>::iterator it = lines.begin(); it != lines.end(); it++) {
-		draw_line(paintR, paintG, paintB, *it, 0, *it, input.cols()-1, 0, 0, 255, 5);
+		draw_line(paintR, paintG, paintB, *it, 0, *it, input.cols()-1, 0, 0, 255, 3);
 	}
 
 	SImageIO::write_png_file("staves.png", paintR, paintG, paintB);
