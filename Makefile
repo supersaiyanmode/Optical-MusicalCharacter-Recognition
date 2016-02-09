@@ -3,7 +3,7 @@
 BIN = omr
 
 # Define source files
-SRCS = ./TemplateDetector.cpp ./DrawText.cpp ./Canny.cpp ./a1.cpp ./utils.cpp ./Hough.cpp ./detection_utils.cpp ./Kernel.cpp ./SImage.cpp
+SRCS = ./Gaussblur.cpp ./TemplateDetector.cpp ./DrawText.cpp ./Canny.cpp ./a1.cpp ./utils.cpp ./Hough.cpp ./detection_utils.cpp ./A1Debug.cpp ./Sobelblur.cpp ./Config.cpp ./Kernel.cpp ./SImage.cpp
 
 # Define header file paths
 INCPATH = -I./
