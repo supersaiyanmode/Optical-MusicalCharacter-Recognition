@@ -6,10 +6,10 @@
 #include "SImage.h"
 #include "SImageIO.h"
 #include "TemplateDetector.h"
+#include "EdgeTemplateDetector.h"
 #include "Kernel.h"
 #include "Hough.h"
 #include "Canny.h"
-#include "utils.h"
 #include "detection_utils.h"
 #include "Gaussblur.h"
 #include "Config.h"
@@ -22,7 +22,8 @@ int process(const char* filename) {
 
 	SDoublePlane smoothed_image = gauss.blur(input_image);
 	debug_png("gauss.png", smoothed_image);
-
+	
+		// test step 2 by applying mean filters to the input image
 	SDoublePlane canny_image = canny(smoothed_image,
 						config.get<double>("canny.low_thresh"), 
 						config.get<double>("canny.high_thresh"));
@@ -40,15 +41,21 @@ int process(const char* filename) {
 	TemplateDetector detector3(SImageIO::read_png_file("template3.png"), EIGHTHREST);
 	std::vector<DetectedSymbol> symbols3 = detector3.find(smoothed_image, 240);
 	detected.insert(detected.end(), symbols3.begin(), symbols3.end());
+	
+	//calculating the template matching score using edgemaps method
+	std::vector<DetectedSymbol> symbols4 = EdgeTemplateDetector(input_image).find(SDoublePlane(),0);
+	detected.insert(detected.end(), symbols4.begin(), symbols4.end());
 
-	HoughLinesDetector hough(config.get<double>("hough.thresh"));
+	HoughLinesDetector hough(config.get<double>("hough.thresh"), 
+			config.get<double>("hough.min_angle"), config.get<double>("hough.max_angle"));
 	std::vector<int> lines = hough.find(canny_image);
 	for (std::vector<int>::iterator it=lines.begin(); it  != lines.end(); it++) {
 		draw_line(input_image, input_image, input_image, *it, 0, *it, input_image.cols(), 100, 100, 100);
 	}
 
 	write_detection_txt("detected.txt", detected);
-	write_detection_image("detected.png", std::vector<DetectedSymbol>(), input_image);
+	write_detection_image("detected.png", detected, input_image);
+
 	std::cout<<"Time taken: "<<float( clock() - start)/CLOCKS_PER_SEC<<std::endl;
 	return 0;
 }
