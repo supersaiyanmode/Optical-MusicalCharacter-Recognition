@@ -20,13 +20,17 @@ std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input) //qu
 
 	//generating binary edge maps using canny
 	//SDoublePlane image_binary_edgemap = convert_to_binary_edgemap(canny(input, 400, 0));
-	SDoublePlane temp = SImageIO::read_png_file("template1.png");
+	SDoublePlane temp = SImageIO::read_png_file("template2.png");
 	//SDoublePlane template_binary_edgemap = convert_to_binary_edgemap(canny(temp, 400, 0));
 	SDoublePlane template_binary_edgemap = convert_to_binary_edgemap(get_sobel(temp));
 
 	//edgemaps using soble
 	SDoublePlane image_binary_edgemap = convert_to_binary_edgemap(get_sobel(input));
-	//SImageIO::write_png_file("temp_sobel.png", image_binary_edgemap, image_binary_edgemap, image_binary_edgemap);
+	(void)get_sobel(temp);
+	SDoublePlane temp_image_binary_edgemap = threshold(image_binary_edgemap, 0.5, THRESH_ZERO, THRESH_MAX);
+	SDoublePlane temp_template_binary_edgemap = threshold(template_binary_edgemap, 0.5, THRESH_ZERO, THRESH_MAX);
+	SImageIO::write_png_file("image_binary_edgemap.png", temp_image_binary_edgemap, temp_image_binary_edgemap, temp_image_binary_edgemap);
+	SImageIO::write_png_file("template_binary_edgemap.png", temp_template_binary_edgemap, temp_template_binary_edgemap, temp_template_binary_edgemap);
 	//std::vector<DetectedSymbol> symbols1;
 	//return symbols1;
 
@@ -73,7 +77,7 @@ std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input) //qu
 	std::vector<DetectedSymbol> symbols;
 	for (int i=0; i<inverted.rows(); i++) {
 		for (int j=0; j<inverted.cols(); j++) {
-			if (inverted[i][j] < 10) {
+			if (inverted[i][j] < 60) {
 				DetectedSymbol s;
 				s.row = i-3;
 				s.col = j-5;
@@ -102,7 +106,9 @@ SDoublePlane get_sobel(SDoublePlane input)
 	SDoublePlane sobelx = convolve_general(input, sobelx_kernel);
 	SDoublePlane sobely = convolve_general(input, sobely_kernel);
 	
-	return (sobelx + sobely);
+	SDoublePlane ret = sobelx + sobely;
+	SImageIO::write_png_file("Sobel_temp.png", ret, ret, ret);
+	return ret;
 }
 
 
