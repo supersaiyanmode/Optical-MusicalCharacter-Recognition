@@ -5,6 +5,7 @@
 #include "Hough.h"
 #include "SImageIO.h"
 #include "A1Debug.h"
+#include "Config.h"
 
 Line::Line(double _x1, double _y1, double _x2, double _y2): 
 						x1(_x1), y1(_y1), x2(_x2), y2(_y2) {
@@ -35,7 +36,7 @@ bool Line::vertical() {
 	return _vertical;
 }
 
-HoughLinesDetector::HoughLinesDetector(double thresh): _threshold(thresh) {
+HoughLinesDetector::HoughLinesDetector(Config& config): config(config) {
 	
 }
 
@@ -43,21 +44,27 @@ std::vector<int> HoughLinesDetector::find(const SDoublePlane& input) {
 	debug_png("hough_input.png", input);
 	int rows = input.rows(), cols = input.cols();
 
-	int angle_bins = 512;
+	int angle_bins = config.get<int>("hough.angle_bins");
 	double max_angle = M_PI;
-	int r_bins = std::min(input.rows(), 512);
+	int r_bins = std::min(input.rows(), config.get<int>("hough.r_bins_max"));
 	int max_r = 2*(int)(std::sqrt(rows*rows + cols*cols)+1) + 2;
+
+	double min_line_angle = config.get<double>("hough.min_angle");
+	double max_line_angle = config.get<double>("hough.max_angle");
 
 	SDoublePlane hough(r_bins, angle_bins);
 
 	//memset zero on a double array: Thug life! :P
 	std::memset(hough.data_ptr(), 0, hough.rows() * hough.cols() * sizeof(double));
 
-	for (int i=0; i<rows; i++) {
-		for (int j=0; j<cols; j++) {
-			if (input[i][j] > 254) {
-				for (int angle_step = 0; angle_step < angle_bins; angle_step++) {
-					double angle = max_angle * angle_step / (float)angle_bins;
+	for (int angle_step = 0; angle_step < angle_bins; angle_step++) {
+		double angle = max_angle * angle_step / (float)angle_bins;
+		double deg_angle = angle * 180.0 / M_PI;
+		if (deg_angle < min_line_angle || deg_angle > max_line_angle)
+			continue;
+		for (int i=0; i<rows; i++) {
+			for (int j=0; j<cols; j++) {
+				if (input[i][j] > 254) {
 					double r = i * std::cos(angle) + j * std::sin(angle);
 
 					int row = (int)((r / (max_r/2.0) + 1.0)*r_bins/2.0);
@@ -70,7 +77,7 @@ std::vector<int> HoughLinesDetector::find(const SDoublePlane& input) {
 	hough = normalise(hough);
 	debug_png("hough_output.png", hough);
 
-	hough = threshold(hough, _threshold, THRESH_ZERO, THRESH_RETAIN);
+	hough = threshold(hough, config.get<double>("hough.thresh"), THRESH_ZERO, THRESH_RETAIN);
 	//hough = non_maximum_suppression(hough);
 	
 	double max_line_length = std::sqrt(rows*rows + cols*cols);
@@ -83,8 +90,7 @@ std::vector<int> HoughLinesDetector::find(const SDoublePlane& input) {
 			double theta = max_angle * j / angle_bins;
 			std::cout<<"Found a line with parameter: r="<<r<<", angle="<<theta<<std::endl;
 
-			if (std::abs(theta) < 0.01)
-				lines.push_back(r);
+			lines.push_back(r);
 		}
 	}
 

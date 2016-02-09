@@ -3,4 +3,6 @@ canny.high_thresh 1000
 hough.thresh 200
 hough.min_angle 0
 hough.max_angle 0.001
+hough.angle_bins 512
+hough.r_bins_max 512
 

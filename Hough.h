@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "SImage.h"
+#include "Config.h"
 
 class Line {
 	double x1, y1, x2, y2;
@@ -20,9 +21,9 @@ public:
 };
 
 class HoughLinesDetector {
-	double _threshold;
+	Config& config;
 public:
-	HoughLinesDetector(double);
+	HoughLinesDetector(Config&);
 	std::vector<int> find(const SDoublePlane& img);
 	
 };

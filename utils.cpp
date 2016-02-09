@@ -15,7 +15,7 @@
 
 using namespace std;
 
-std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input) //question 5
+/*std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input) //question 5
 {
 
 	//generating binary edge maps using canny
@@ -169,7 +169,7 @@ SDoublePlane convert_to_binary_edgemap(SDoublePlane img)
 	return img;
 
 }
-
+*/
 SDoublePlane threshold(const SDoublePlane& input, double val, int low_val, int high_val) {
 	SDoublePlane image(input);
 	for (int i=0, rows = image.rows(); i< rows; i++) {

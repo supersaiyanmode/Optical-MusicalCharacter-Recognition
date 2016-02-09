@@ -15,11 +15,11 @@ SDoublePlane flipxy(SDoublePlane input);
 
 SDoublePlane normalise_kernel(const SDoublePlane& input);
 
-std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input);
+/*std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input);
 SDoublePlane convert_to_binary_edgemap(SDoublePlane input);
 SDoublePlane dist(SDoublePlane img);
 double f_gamma(double val);
-SDoublePlane get_sobel(SDoublePlane input);
+SDoublePlane get_sobel(SDoublePlane input);*/
 
 double image_max(const SDoublePlane&);
 double image_sum(const SDoublePlane&);

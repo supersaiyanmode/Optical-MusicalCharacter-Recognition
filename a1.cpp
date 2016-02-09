@@ -46,8 +46,7 @@ int process(const char* filename) {
 	std::vector<DetectedSymbol> symbols4 = EdgeTemplateDetector(input_image).find(SDoublePlane(),0);
 	detected.insert(detected.end(), symbols4.begin(), symbols4.end());
 
-	HoughLinesDetector hough(config.get<double>("hough.thresh"), 
-			config.get<double>("hough.min_angle"), config.get<double>("hough.max_angle"));
+	HoughLinesDetector hough(config);
 	std::vector<int> lines = hough.find(canny_image);
 	for (std::vector<int>::iterator it=lines.begin(); it  != lines.end(); it++) {
 		draw_line(input_image, input_image, input_image, *it, 0, *it, input_image.cols(), 100, 100, 100);
