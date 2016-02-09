@@ -1,10 +1,11 @@
 #include<cmath>
 #include <iostream>
-
+#include "Sobelblur.h"
 #include "Canny.h"
 #include "utils.h"
 #include "Kernel.h"
 #include "SImageIO.h"
+
 
 #define DIR_NORTH 0
 #define DIR_NORTH_EAST 1
@@ -14,9 +15,7 @@
 #define BETWEEN(X,Y,Z) (((X) <= (Y)) && ((Y) <= (Z)))
 #define MAXIMA(X,Y,Z) (((x) < (Y)) && ((Y) > (Z)))
 namespace {
-	
-	SDoublePlane sobelx_kernel = load_kernel("kernels/sobel3x");
-	SDoublePlane sobely_kernel = load_kernel("kernels/sobel3y");
+	Sobelblur sobel;
 }
 
 SDoublePlane canny(const SDoublePlane& image, double low_thresh, double high_thresh) {
@@ -25,8 +24,8 @@ SDoublePlane canny(const SDoublePlane& image, double low_thresh, double high_thr
 	 * Slides #16-#21
 	 */
 
-	SDoublePlane sobelx = convolve_general(image, sobelx_kernel);
-	SDoublePlane sobely = convolve_general(image, sobely_kernel);
+	SDoublePlane sobelx = sobel.blur(image,true);
+	SDoublePlane sobely = sobel.blur(image,false);
 	SDoublePlane magnitude(image.rows(), image.cols());
 	SDoublePlane output = image;
 	_DTwoDimArray<int> angle(image.rows(), image.cols());
