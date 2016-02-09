@@ -37,10 +37,10 @@ void overlay_rectangle(
 
 void draw_line(SDoublePlane& R, SDoublePlane& G, SDoublePlane& B, 
 			int x1, int y1, int x2, int y2,
-			double r, double g, double b) {
+			double r, double g, double b, int thickness) {
 	//Source: http://rosettacode.org/wiki/Bitmap/Bresenham%27s_line_algorithm#C.2B.2B
 	
-	bool steep = (std::abs(y2 - y1) > std::abs(x2 - x1));
+	bool steep = std::abs(y2 - y1) > std::abs(x2 - x1);
 	if(steep) {
 		std::swap(x1, y1);
 		std::swap(x2, y2);
@@ -59,13 +59,18 @@ void draw_line(SDoublePlane& R, SDoublePlane& G, SDoublePlane& B,
 
 	for(int x=(int)x1; x<maxX; x++) {
 		if(steep && BETWEEN(0, y, R.rows()) && BETWEEN(0, x, R.cols())) {
-			R[y][x] = r;
-			G[y][x] = g;
-			B[y][x] = b;
+			for (int curY = y - thickness/2; curY <= y + thickness/2; curY++) {
+				R[curY][x] = r;
+				G[curY][x] = g;
+				B[curY][x] = b;
+
+			}
 		} else if (!steep && BETWEEN(0, x, R.rows()) && BETWEEN(0, y, R.cols())){
-			R[x][y] = r;
-			G[x][y] = g;
-			B[x][y] = b;
+			for (int curX = x - thickness/2; curX <= x + thickness/2; curX++) {
+				R[curX][y] = r;
+				G[curX][y] = g;
+				B[curX][y] = b;
+			}
 		}
  
 		error -= dy;

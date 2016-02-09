@@ -43,14 +43,11 @@ int process(const char* filename) {
 	detected.insert(detected.end(), symbols3.begin(), symbols3.end());
 	
 	//calculating the template matching score using edgemaps method
-	std::vector<DetectedSymbol> symbols4 = EdgeTemplateDetector(input_image).find(SDoublePlane(),0);
-	detected.insert(detected.end(), symbols4.begin(), symbols4.end());
+	//std::vector<DetectedSymbol> symbols4 = EdgeTemplateDetector(input_image).find(SDoublePlane(),0);
+	//detected.insert(detected.end(), symbols4.begin(), symbols4.end());
 
 	HoughLinesDetector hough(config);
-	std::vector<int> lines = hough.find(canny_image);
-	for (std::vector<int>::iterator it=lines.begin(); it  != lines.end(); it++) {
-		draw_line(input_image, input_image, input_image, *it, 0, *it, input_image.cols(), 100, 100, 100);
-	}
+	std::vector<int> lines = hough.find(canny_image, input_image);
 
 	write_detection_txt("detected.txt", detected);
 	write_detection_image("detected.png", detected, input_image);

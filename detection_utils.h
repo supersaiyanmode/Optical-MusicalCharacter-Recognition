@@ -19,6 +19,6 @@ void  write_detection_image(const std::string&,
 
 void draw_line(SDoublePlane& R, SDoublePlane& G, SDoublePlane& B, 
 			int x1, int y1, int x2, int y2,
-			double r, double g, double b);
+			double r, double g, double b, int thickness);
 	
 #endif

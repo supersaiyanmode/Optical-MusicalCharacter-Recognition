@@ -24,7 +24,7 @@ class HoughLinesDetector {
 	Config& config;
 public:
 	HoughLinesDetector(Config&);
-	std::vector<int> find(const SDoublePlane& img);
+	std::vector<int> find(const SDoublePlane& img, const SDoublePlane&);
 	
 };
 #endif

@@ -6,6 +6,7 @@
 #include "SImageIO.h"
 #include "A1Debug.h"
 #include "Config.h"
+#include "detection_utils.h"
 
 Line::Line(double _x1, double _y1, double _x2, double _y2): 
 						x1(_x1), y1(_y1), x2(_x2), y2(_y2) {
@@ -40,7 +41,7 @@ HoughLinesDetector::HoughLinesDetector(Config& config): config(config) {
 	
 }
 
-std::vector<int> HoughLinesDetector::find(const SDoublePlane& input) {
+std::vector<int> HoughLinesDetector::find(const SDoublePlane& input, const SDoublePlane& orig) {
 	debug_png("hough_input.png", input);
 	int rows = input.rows(), cols = input.cols();
 
@@ -93,6 +94,14 @@ std::vector<int> HoughLinesDetector::find(const SDoublePlane& input) {
 			lines.push_back(r);
 		}
 	}
+
+	SDoublePlane paintR(orig), paintG(orig), paintB(orig);
+	
+	for (std::vector<int>::iterator it = lines.begin(); it != lines.end(); it++) {
+		draw_line(paintR, paintG, paintB, *it, 0, *it, input.cols()-1, 0, 0, 255, 5);
+	}
+
+	SImageIO::write_png_file("staves.png", paintR, paintG, paintB);
 
 	return lines;
 }
