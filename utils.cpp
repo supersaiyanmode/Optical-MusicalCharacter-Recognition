@@ -18,19 +18,26 @@ using namespace std;
 std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input) //question 5
 {
 
-	//generating binary edge maps
-	SDoublePlane image_binary_edgemap = convert_to_binary_edgemap(canny(input, 400, 0));
-	SDoublePlane temp = SImageIO::read_png_file("template3.png");
-	SDoublePlane template_binary_edgemap = convert_to_binary_edgemap(canny(temp, 400, 0));
+	//generating binary edge maps using canny
+	//SDoublePlane image_binary_edgemap = convert_to_binary_edgemap(canny(input, 400, 0));
+	SDoublePlane temp = SImageIO::read_png_file("template1.png");
+	//SDoublePlane template_binary_edgemap = convert_to_binary_edgemap(canny(temp, 400, 0));
+	SDoublePlane template_binary_edgemap = convert_to_binary_edgemap(get_sobel(temp));
+
+	//edgemaps using soble
+	SDoublePlane image_binary_edgemap = convert_to_binary_edgemap(get_sobel(input));
+	//SImageIO::write_png_file("temp_sobel.png", image_binary_edgemap, image_binary_edgemap, image_binary_edgemap);
+	//std::vector<DetectedSymbol> symbols1;
+	//return symbols1;
 
 	//SDoublePlane dist_score = SImageIO::read_png_file("1234.png");
 
 	//calculating the the distance matrix D
 	cout<<"starting distance calculator.."<<endl;
-	//SDoublePlane D_mat = dist(image_binary_edgemap);
+	SDoublePlane D_mat = dist(image_binary_edgemap);
 	
 	//reading directly from the dist_matrix image saved
-	SDoublePlane D_mat = SImageIO::read_png_file("music1_dist_matrix.png");
+	//SDoublePlane D_mat = SImageIO::read_png_file("music1_dist_matrix.png");
 
 	//cout<<"writing the distance matrix of the image:"<<endl;
 	//SImageIO::write_png_file("music1_dist_matrix.png", D_mat, D_mat, D_mat);
@@ -57,21 +64,21 @@ std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input) //qu
 		}	
 	}
 
-	cout<<endl<<"printing the values of the score matrix"<<endl;
-	SImageIO::write_png_file("1234.png", dist_score, dist_score, dist_score);
+	//cout<<endl<<"printing the values of the score matrix"<<endl;
+	//SImageIO::write_png_file("1234.png", dist_score, dist_score, dist_score);
 	
-	SDoublePlane inverted = normalise(dist_score);//*-1 + 255;
+	SDoublePlane inverted = normalise(dist_score)*-1 + 255;
 	SImageIO::write_png_file("debug.png", inverted, inverted, inverted);
-	dist_score = threshold(dist_score, 0.001, THRESH_MAX, THRESH_ZERO);
+	//dist_score = threshold(dist_score, 300, THRESH_MAX, THRESH_ZERO);
 	std::vector<DetectedSymbol> symbols;
-	for (int i=0; i<dist_score.rows(); i++) {
-		for (int j=0; j<dist_score.cols(); j++) {
-			if (dist_score[i][j] > 0) {
+	for (int i=0; i<inverted.rows(); i++) {
+		for (int j=0; j<inverted.cols(); j++) {
+			if (inverted[i][j] < 10) {
 				DetectedSymbol s;
 				s.row = i-3;
 				s.col = j-5;
 				s.width = 25;
-				s.height = 30;
+				s.height = 15;
 				s.type = (Type)2;
 				s.confidence = 0.7;
 				s.pitch = 'A';
@@ -86,6 +93,18 @@ std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input) //qu
 	//SImageIO::write_png_file("BinarytempTrial.png", image, image, image);
 	//return input;
 }
+
+SDoublePlane get_sobel(SDoublePlane input)
+{
+	SDoublePlane sobelx_kernel = load_kernel("kernels/sobel3x");
+	SDoublePlane sobely_kernel = load_kernel("kernels/sobel3y");
+	
+	SDoublePlane sobelx = convolve_general(input, sobelx_kernel);
+	SDoublePlane sobely = convolve_general(input, sobely_kernel);
+	
+	return (sobelx + sobely);
+}
+
 
 double f_gamma(double val)
 {
