@@ -3,6 +3,7 @@
 #include <vector>
 #include "SImage.h"
 #include "Symbols.h"
+#include "StaffDetector.h"
 
 SDoublePlane convolve_general(const SDoublePlane& input, const SDoublePlane& filter);
 SDoublePlane convolve_separable(const SDoublePlane &input, const SDoublePlane &row_filter, const SDoublePlane &col_filter);
@@ -27,6 +28,8 @@ double get_average_staff_distance(const std::vector<int>&);
 
 double image_max(const SDoublePlane&);
 double image_sum(const SDoublePlane&);
+
+char get_pitch(const DetectedSymbol&, const StaffDetector&);
 
 #define THRESH_RETAIN -128
 #define THRESH_ZERO -256
