@@ -13,44 +13,67 @@
 #include "detection_utils.h"
 #include "Gaussblur.h"
 #include "Config.h"
+#include "StaffDetector.h"
+#include "ImageResize.h"
 
 int process(const char* filename) {
-	Config config("config.txt");
 	const clock_t start = clock();
+	Config config("config.txt");
 	SDoublePlane input_image= SImageIO::read_png_file(filename);
 	Gaussblur gauss(5);
 
 	SDoublePlane smoothed_image = gauss.blur(input_image);
 	debug_png("gauss.png", smoothed_image);
 	
-		// test step 2 by applying mean filters to the input image
-	SDoublePlane canny_image = canny(smoothed_image,
+	SDoublePlane canny_image = canny(input_image,
 						config.get<double>("canny.low_thresh"), 
 						config.get<double>("canny.high_thresh"));
 	debug_png("canny.png", canny_image);
 
+	HoughLinesDetector hough(config);
+	std::vector<int> lines = hough.find(canny_image, input_image);
+	StaffDetector sd(lines);
+
+	SDoublePlane template1 = get_template(1, sd.staff_height());
+	SDoublePlane template2 = get_template(2, sd.staff_height());
+	SDoublePlane template3 = get_template(3, sd.staff_height());
+
 	std::vector<DetectedSymbol> detected;
-	TemplateDetector detector1(SImageIO::read_png_file("template1.png"), NOTEHEAD);
-	std::vector<DetectedSymbol> symbols1 = detector1.find(smoothed_image, 240);
+	TemplateDetector detector1(template1, NOTEHEAD, config);
+	std::vector<DetectedSymbol> symbols1 = 
+					detector1.find(smoothed_image, sd, config.get<double>("template1.thresh"));
 	detected.insert(detected.end(), symbols1.begin(), symbols1.end());
+	SImageIO::write_png_file("scores4-template1.png", detector1.convolve_result, 
+				detector1.convolve_result, detector1.convolve_result);
 
-	TemplateDetector detector2(SImageIO::read_png_file("template2.png"), QUARTERREST);
-	std::vector<DetectedSymbol> symbols2 = detector2.find(smoothed_image, 240);
+	TemplateDetector detector2(template2, QUARTERREST, config);
+	std::vector<DetectedSymbol> symbols2 =
+					detector2.find(smoothed_image, sd, config.get<double>("template2.thresh"));
 	detected.insert(detected.end(), symbols2.begin(), symbols2.end());
+	SImageIO::write_png_file("scores4-template2.png", detector2.convolve_result, 
+				detector2.convolve_result, detector2.convolve_result);
 
-	TemplateDetector detector3(SImageIO::read_png_file("template3.png"), EIGHTHREST);
-	std::vector<DetectedSymbol> symbols3 = detector3.find(smoothed_image, 240);
+	TemplateDetector detector3(template3, EIGHTHREST, config);
+	std::vector<DetectedSymbol> symbols3 =
+					detector3.find(smoothed_image, sd, config.get<double>("template3.thresh"));
 	detected.insert(detected.end(), symbols3.begin(), symbols3.end());
+	SImageIO::write_png_file("scores4-template3.png", detector3.convolve_result, 
+				detector3.convolve_result, detector3.convolve_result);
 	
+	write_detection_image("detected4.png", detected, input_image);
+
+	SImageIO::write_png_file("edges.png",canny_image, canny_image, canny_image);
+
 	//calculating the template matching score using edgemaps method
 	//std::vector<DetectedSymbol> symbols4 = EdgeTemplateDetector(input_image).find(SDoublePlane(),0);
 	//detected.insert(detected.end(), symbols4.begin(), symbols4.end());
 
-	HoughLinesDetector hough(config);
-	std::vector<int> lines = hough.find(canny_image, input_image);
+	std::vector<DetectedSymbol> result = detected;
 
-	write_detection_txt("detected.txt", detected);
-	write_detection_image("detected.png", detected, input_image);
+	write_detection_image("detected7.png", result, input_image);
+
+	write_detection_txt("detected.txt", result);
+	write_detection_image("detected.png", result, input_image);
 
 	std::cout<<"Time taken: "<<float( clock() - start)/CLOCKS_PER_SEC<<std::endl;
 	return 0;
