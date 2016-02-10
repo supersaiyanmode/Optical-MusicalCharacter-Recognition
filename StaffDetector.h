@@ -5,14 +5,13 @@
 
 class StaffDetector {
 	int _staff_height;
-	int _group_count;
+	std::vector<std::vector<int> > _groups;
 public:
 	StaffDetector(const std::vector<int>&);
 
-	int group_count();
-	int last_staff(int);
-
 	int staff_height();
+
+	const std::vector<std::vector<int> >& groups();
 };
 
 #endif

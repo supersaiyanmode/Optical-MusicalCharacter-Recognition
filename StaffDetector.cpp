@@ -18,8 +18,21 @@ StaffDetector::StaffDetector(const std::vector<int>& offsets) {
 
 	//Average the largest 5 diff_offsets to get group heights;
 	double avg_group_height = std::accumulate(diff_offsets.end() - 5, diff_offsets.end(), 0);
+
+	for (int i=0; i < diff_offsets.size();) {
+		std::vector<int> curGroup;
+		curGroup.push_back(lines[i]);
+		while (++i < diff_offsets.size() && diff_offsets[i] < 3 * _staff_height) {
+			curGroup.push_back(lines[i]);
+		}
+		_groups.push_back(curGroup);
+	}
 }
 
 int StaffDetector::staff_height() {
 	return _staff_height;
+}
+
+const std::vector<std::vector<int> >& StaffDetector::groups() {
+	return _groups;
 }
