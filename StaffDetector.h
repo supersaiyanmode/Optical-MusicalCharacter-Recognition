@@ -9,9 +9,9 @@ class StaffDetector {
 public:
 	StaffDetector(const std::vector<int>&);
 
-	int staff_height();
+	int staff_height() const;
 
-	const std::vector<std::vector<int> >& groups();
+	const std::vector<std::vector<int> >& groups() const;
 };
 
 #endif

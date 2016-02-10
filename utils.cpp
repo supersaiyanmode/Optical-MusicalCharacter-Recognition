@@ -360,21 +360,28 @@ char get_pitch(const DetectedSymbol& symbol, const StaffDetector& sd) {
 	int	nearest_dist = 100000,
 		n = -1;
 	
-	/*const std::vector<std::vector<int> > &g = sd.groups();
+	const std::vector<std::vector<int> > &g = sd.groups();
 	for (int i=0; i < g.size(); i++) {
-		int min_dist = std::min(std::abs(sd.x - g[i][0]), std::abs(sd.x - g[i][g[i].size()-1]));
+		int min_dist = std::min(std::abs(symbol.x - g[i][0]), std::abs(symbol.x - g[i][g[i].size()-1]));
 		if (min_dist < nearest_dist) {
 			nearest_dist = min_dist;
 			n = i;
 		}
 	}
 
-	bool is_nearer_lower = std::abs(sd.x - g[n][0]) < std::abs(sd.x - g[n][g[n].size() - 1])
+	bool is_nearer_lower = std::abs(symbol.x - g[n][0]) < std::abs(symbol.x - g[n][g[n].size() - 1]);
 	if (is_nearer_lower && n % 2 == 0) { //Lower portion of trebel
-		int steps = g[n][0
-	} else {
-
-	}*/
+		char PITCHES[] = {'E', 'F', 'G', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'D'};
+		int steps = 2* (symbol.x - g[n][g[n].size() - 1]) / sd.staff_height();
+		steps = (steps + 14)%14;
+		return PITCHES[steps];
+	}
+	if (!is_nearer_lower && n % 2 == 0) { // upper portion of trebel
+		char PITCHES[] = {'E', 'F', 'G', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'D'};
+		int steps = 2 * (g[n][g[n].size() - 1] - symbol.x) / sd.staff_height();
+		steps = (steps + 14)%14;
+		return PITCHES[steps];
+	}
 	return 'A';
 }
 
