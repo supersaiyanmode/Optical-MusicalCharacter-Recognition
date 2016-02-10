@@ -11,6 +11,7 @@ typedef enum {
 class DetectedSymbol {
 public:
 	int row, col, width, height;
+	int x, y;
 	Type type;
 	char pitch;
 	double confidence;
