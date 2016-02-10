@@ -3,7 +3,7 @@
 BIN = omr
 
 # Define source files
-SRCS = ./Gaussblur.cpp ./TemplateDetector.cpp ./DrawText.cpp ./Canny.cpp ./a1.cpp ./utils.cpp ./Hough.cpp ./detection_utils.cpp ./EdgeTemplateDetector.cpp ./A1Debug.cpp ./Sobelblur.cpp ./Config.cpp ./Kernel.cpp ./SImage.cpp
+SRCS = ./ImageResize.cpp ./Gaussblur.cpp ./TemplateDetector.cpp ./DrawText.cpp ./Canny.cpp ./a1.cpp ./utils.cpp ./Hough.cpp ./detection_utils.cpp ./EdgeTemplateDetector.cpp ./A1Debug.cpp ./Sobelblur.cpp ./Config.cpp ./Kernel.cpp ./SImage.cpp ./StaffDetector.cpp
 
 # Define header file paths
 INCPATH = -I./
@@ -15,10 +15,10 @@ LDFLAGS =
 LIBS = -lpng
 
 # Define Compile Flags
-COMPILEFLAGS = -Wall -pedantic -Wno-unused-variable -Wno-unused-but-set-variable
+COMPILEFLAGS = -Wall -pedantic -Wno-unused-variable -Wno-unused-but-set-variable -g
 
 # Define Link Flags
-LINKFLAGS = 
+LINKFLAGS = -g
 
 # Do not make any changes below!
 OBJS      = $(SRCS:.cpp=.o)
