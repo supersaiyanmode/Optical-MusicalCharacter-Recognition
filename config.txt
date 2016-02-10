@@ -8,5 +8,5 @@ hough.group_max_delta 5
 hough.r_bins_max 200
 template1.thresh 240
 template2.thresh 240
-template3.thresh 240
+template3.thresh 250
 
