@@ -30,8 +30,7 @@ SDoublePlane canny(const SDoublePlane& image, double low_thresh, double high_thr
 	SDoublePlane output = image;
 	_DTwoDimArray<int> angle(image.rows(), image.cols());
 
-	SDoublePlane temp = sobelx + sobely;
-	debug_png("sobel.png", temp);
+	debug_png("sobel.png", sobelx + sobely);
 
 	for (int i=0; i<image.rows(); i++) {
 		for (int j=0; j<image.cols(); j++) {

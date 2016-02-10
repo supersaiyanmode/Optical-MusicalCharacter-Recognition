@@ -6,6 +6,7 @@
 #include "Kernel.h"
 #include "utils.h"
 #include "SImageIO.h"
+#include "A1Debug.h"
 
 namespace {
 	SDoublePlane convert_to_binary_edgemap(SDoublePlane img) {
@@ -66,7 +67,7 @@ namespace {
 		SDoublePlane sobely = convolve_general(input, sobely_kernel);
 
 		SDoublePlane ret = sobelx + sobely;
-		SImageIO::write_png_file("Sobel_temp.png", ret, ret, ret);
+		debug_png("Sobel_temp.png", ret);
 		return ret;
 	}
 
