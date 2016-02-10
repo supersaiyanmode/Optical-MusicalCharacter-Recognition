@@ -65,22 +65,27 @@ int process(const char* filename) {
 	SImageIO::write_png_file("edges.png",canny_image, canny_image, canny_image);
 
 	//calculating the template matching score using edgemaps method
+	std::vector<DetectedSymbol> detected1;
+
 	EdgeTemplateDetector edge = EdgeTemplateDetector(input_image);
 	SDoublePlane temp1 = SImageIO::read_png_file("template1.png");
 	std::vector<DetectedSymbol> symbols4 = edge.find(temp1, sd, NOTEHEAD, 0);
-	detected.insert(detected.end(), symbols4.begin(), symbols4.end());
+	detected1.insert(detected1.end(), symbols4.begin(), symbols4.end());
 
 	SDoublePlane temp2 = SImageIO::read_png_file("template2.png");
 	std::vector<DetectedSymbol> symbols5 = edge.find(temp2, sd, QUARTERREST, 0);
-	detected.insert(detected.end(), symbols5.begin(), symbols5.end());
+	detected1.insert(detected1.end(), symbols5.begin(), symbols5.end());
 
 	SDoublePlane temp3 = SImageIO::read_png_file("template3.png");	
 	std::vector<DetectedSymbol> symbols6 = edge.find(temp3, sd, EIGHTHREST, 0);
-	detected.insert(detected.end(), symbols6.begin(), symbols6.end());
+	detected1.insert(detected1.end(), symbols6.begin(), symbols6.end());
+
+	write_detection_image("detected5.png", detected1, input_image);
 
 	std::vector<DetectedSymbol> result = detected;
 
 	write_detection_image("detected7.png", result, input_image);
+	write_detection_txt("detected7.txt", result);
 
 	write_detection_txt("detected.txt", result);
 	write_detection_image("detected.png", result, input_image);
