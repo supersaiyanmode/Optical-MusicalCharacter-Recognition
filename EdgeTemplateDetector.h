@@ -5,6 +5,7 @@
 
 #include "Symbols.h"
 #include "SImage.h"
+#include "StaffDetector.h"
 
 class EdgeTemplateDetector {
 	SDoublePlane image;
@@ -13,7 +14,7 @@ class EdgeTemplateDetector {
 	SDoublePlane D_mat;
 public:
 	EdgeTemplateDetector(const SDoublePlane&);
-	std::vector<DetectedSymbol> find(const SDoublePlane&, double threshold);
+	std::vector<DetectedSymbol> find(const SDoublePlane&, StaffDetector sd, Type, double threshold);
 };
 
 #endif

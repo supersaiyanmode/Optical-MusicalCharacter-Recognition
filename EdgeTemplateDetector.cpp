@@ -71,52 +71,33 @@ namespace {
 		return ret;
 	}
 
-	SDoublePlane correlate(SDoublePlane input, SDoublePlane temp)
-		{	SDoublePlane dist_score(input.rows(),input.cols());	
-			double sum = 0;
-			for(int i=0; i<input.rows(); i++)
+	SDoublePlane correlate(SDoublePlane input, SDoublePlane temp) {	
+		SDoublePlane dist_score(input.rows(),input.cols());	
+		double sum = 0;
+		for(int i=0; i<input.rows(); i++)
+		{
+			for(int j=0; j<input.cols(); j++)
 			{
-				for(int j=0; j<input.cols(); j++)
+				sum = 0;
+				for(int k=0; k<temp.rows(); k++)
 				{
-					sum = 0;
-					for(int k=0; k<temp.rows(); k++)
+					for(int l=0;l<temp.cols(); l++)
 					{
-						for(int l=0;l<temp.cols(); l++)
-						{
-							if((i+k) < input.rows() && (j+l)<input.cols())
-								sum += template_binary_edgemap[k][l] * D_mat[i+k][j+l];
-						}
+						if((i+k) < input.rows() && (j+l)<input.cols())
+							sum += temp[k][l] * input[i+k][j+l];
 					}
-					dist_score[i][j] = sum;
 				}
+				dist_score[i][j] = sum;
 			}
-			return dist_score;
 		}
-
-	std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input, const SDoublePlane& template1,const SDoublePlane& template2,const SDoublePlane& template3) {
-
-		
-		SDoublePlane temp1 = SImageIO::read_png_file(template1);
-		SDoublePlane temp2 = SImageIO::read_png_file(template2);
-		
-		SDoublePlane template_binary_edgemap2 = convert_to_binary_edgemap(get_sobel(temp2));
-		SDoublePlane template_binary_edgemap3 = convert_to_binary_edgemap(get_sobel(temp3));
-		
-
-
-
-
-
-		
-
-
-		return symbols;
+		return dist_score;
 	}
-
 }
+	
 
-EdgeTemplateDetector::EdgeTemplateDetector(const SDoublePlane& img, Type t): image(img), type(t) {
-	SDoublePlane image_binary_edgemap = convert_to_binary_edgemap(get_sobel(input));
+
+EdgeTemplateDetector::EdgeTemplateDetector(const SDoublePlane& img): image(img) {
+	SDoublePlane image_binary_edgemap = convert_to_binary_edgemap(get_sobel(image));
 	
 	//calculating the the distance matrix D
 	std::cout<<"starting distance calculator.."<<std::endl;
@@ -133,11 +114,11 @@ EdgeTemplateDetector::EdgeTemplateDetector(const SDoublePlane& img, Type t): ima
 	
 }
 
-std::vector<DetectedSymbol> EdgeTemplateDetector::find(const SDoublePlane& kernel, double threshold) {
+std::vector<DetectedSymbol> EdgeTemplateDetector::find(const SDoublePlane& kernel, StaffDetector sd, Type t, double threshold) {
 	std::cout<<"pushing the distance scores.."<<std::endl;
 	
-	SDoublePlane temp = SImageIO::read_png_file(kernel);
-	SDoublePlane template_binary_edgemap1 = convert_to_binary_edgemap(get_sobel(temp));
+	//SDoublePlane temp = SImageIO::read_png_file(kernel);
+	SDoublePlane template_binary_edgemap1 = convert_to_binary_edgemap(get_sobel(kernel));
 
 	SDoublePlane dist_score = correlate(D_mat,template_binary_edgemap1);
 	SDoublePlane inverted = normalise(dist_score)*-1 + 255;
@@ -154,9 +135,9 @@ std::vector<DetectedSymbol> EdgeTemplateDetector::find(const SDoublePlane& kerne
 				s.col = j-5;
 				s.width = 25;
 				s.height = 20;
-				s.type = (Type)2;
-				s.confidence = 0.7;
-				s.pitch = 'A';
+				s.type = t;
+				s.confidence = (20 -inverted[i][j])/(20);
+				s.pitch = get_pitch(s, sd);
 				symbols.push_back(s);
 			}
 		}
