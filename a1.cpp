@@ -65,8 +65,15 @@ int process(const char* filename) {
 	SImageIO::write_png_file("edges.png",canny_image, canny_image, canny_image);
 
 	//calculating the template matching score using edgemaps method
-	//std::vector<DetectedSymbol> symbols4 = EdgeTemplateDetector(input_image).find(SDoublePlane(),0);
-	//detected.insert(detected.end(), symbols4.begin(), symbols4.end());
+	EdgeTemplateDetector edge = EdgeTemplateDetector(input_image)
+	std::vector<DetectedSymbol> symbols4 = edge.find();
+	detected.insert(detected.end(), symbols4.begin(), symbols4.end());
+
+	std::vector<DetectedSymbol> symbols5 = EdgeTemplateDetector(input_image, QUARTERREST).find(SDoublePlane(),0);
+	detected.insert(detected.end(), symbols4.begin(), symbols4.end());
+
+	std::vector<DetectedSymbol> symbols6 = EdgeTemplateDetector(input_image).find(SDoublePlane(),0);
+	detected.insert(detected.end(), symbols4.begin(), symbols4.end());
 
 	std::vector<DetectedSymbol> result = detected;
 
@@ -78,7 +85,6 @@ int process(const char* filename) {
 	std::cout<<"Time taken: "<<float( clock() - start)/CLOCKS_PER_SEC<<std::endl;
 	return 0;
 }
-
 //
 // This main file just outputs a few test images. You'll want to change it to do 
 //  something more interesting!

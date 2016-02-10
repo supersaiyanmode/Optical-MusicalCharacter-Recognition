@@ -9,6 +9,8 @@
 class EdgeTemplateDetector {
 	SDoublePlane image;
 	SDoublePlane edge_map;
+
+	SDoublePlane D_mat;
 public:
 	EdgeTemplateDetector(const SDoublePlane&);
 	std::vector<DetectedSymbol> find(const SDoublePlane&, double threshold);

@@ -26,7 +26,7 @@ namespace {
 		SDoublePlane D(img.rows(), img.cols());
 		for(int i=0; i<img.rows(); i++) {
 			for(int j=0; j<img.cols(); j++) {
-				std::cout<<"Processing Dist Map: "<<i<<" "<<j<<std::endl;
+				//std::cout<<"Processing Dist Map: "<<i<<" "<<j<<std::endl;
 				min_dist = INT_MAX;
 				if(img[i][j]>0) {
 					D[i][j] = 0;
@@ -71,80 +71,43 @@ namespace {
 		return ret;
 	}
 
-	std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input) {
-
-		//generating binary edge maps using canny
-		//SDoublePlane image_binary_edgemap = convert_to_binary_edgemap(canny(input, 400, 0));
-		SDoublePlane temp = SImageIO::read_png_file("template2.png");
-		//SDoublePlane template_binary_edgemap = convert_to_binary_edgemap(canny(temp, 400, 0));
-		SDoublePlane template_binary_edgemap = convert_to_binary_edgemap(get_sobel(temp));
-
-		//edgemaps using soble
-		SDoublePlane image_binary_edgemap = convert_to_binary_edgemap(get_sobel(input));
-		(void)get_sobel(temp);
-		SDoublePlane temp_image_binary_edgemap = threshold(image_binary_edgemap, 0.5, THRESH_ZERO, THRESH_MAX);
-		SDoublePlane temp_template_binary_edgemap = threshold(template_binary_edgemap, 0.5, THRESH_ZERO, THRESH_MAX);
-		SImageIO::write_png_file("image_binary_edgemap.png", temp_image_binary_edgemap, temp_image_binary_edgemap, temp_image_binary_edgemap);
-		SImageIO::write_png_file("template_binary_edgemap.png", temp_template_binary_edgemap, temp_template_binary_edgemap, temp_template_binary_edgemap);
-		//std::vector<DetectedSymbol> symbols1;
-		//return symbols1;
-
-		//SDoublePlane dist_score = SImageIO::read_png_file("1234.png");
-
-		//calculating the the distance matrix D
-		std::cout<<"starting distance calculator.."<<std::endl;
-		SDoublePlane D_mat = dist(image_binary_edgemap);
-
-		//reading directly from the dist_matrix image saved
-		//SDoublePlane D_mat = SImageIO::read_png_file("music1_dist_matrix.png");
-
-		//std::cout<<"writing the distance matrix of the image:"<<std::endl;
-		//SImageIO::write_png_file("music1_dist_matrix.png", D_mat, D_mat, D_mat);
-		//std::cout<<"done with distance"<<std::endl;
-
-		//calculating the scores
-		SDoublePlane dist_score(input.rows(),input.cols());
-		std::cout<<"pushing the distance scores.."<<std::endl;
-		double sum = 0;
-		for(int i=0; i<input.rows(); i++)
-		{
-			for(int j=0; j<input.cols(); j++)
+	SDoublePlane correlate(SDoublePlane input, SDoublePlane temp)
+		{	SDoublePlane dist_score(input.rows(),input.cols());	
+			double sum = 0;
+			for(int i=0; i<input.rows(); i++)
 			{
-				sum = 0;
-				for(int k=0; k<temp.rows(); k++)
+				for(int j=0; j<input.cols(); j++)
 				{
-					for(int l=0;l<temp.cols(); l++)
+					sum = 0;
+					for(int k=0; k<temp.rows(); k++)
 					{
-						if((i+k) < input.rows() && (j+l)<input.cols())
-							sum += template_binary_edgemap[k][l] * D_mat[i+k][j+l];
+						for(int l=0;l<temp.cols(); l++)
+						{
+							if((i+k) < input.rows() && (j+l)<input.cols())
+								sum += template_binary_edgemap[k][l] * D_mat[i+k][j+l];
+						}
 					}
-				}
-				dist_score[i][j] = sum;
-			}
-		}
-
-		//std::cout<<std::endl<<"printing the values of the score matrix"<<std::endl;
-		//SImageIO::write_png_file("1234.png", dist_score, dist_score, dist_score);
-
-		SDoublePlane inverted = normalise(dist_score)*-1 + 255;
-		SImageIO::write_png_file("debug.png", inverted, inverted, inverted);
-		//dist_score = threshold(dist_score, 300, THRESH_MAX, THRESH_ZERO);
-		std::vector<DetectedSymbol> symbols;
-		for (int i=0; i<inverted.rows(); i++) {
-			for (int j=0; j<inverted.cols(); j++) {
-				if (inverted[i][j] < 60) {
-					DetectedSymbol s;
-					s.row = i-3;
-					s.col = j-5;
-					s.width = 25;
-					s.height = 15;
-					s.type = (Type)2;
-					s.confidence = 0.7;
-					s.pitch = 'A';
-					symbols.push_back(s);
+					dist_score[i][j] = sum;
 				}
 			}
+			return dist_score;
 		}
+
+	std::vector<DetectedSymbol> score_using_edgemaps(const SDoublePlane& input, const SDoublePlane& template1,const SDoublePlane& template2,const SDoublePlane& template3) {
+
+		
+		SDoublePlane temp1 = SImageIO::read_png_file(template1);
+		SDoublePlane temp2 = SImageIO::read_png_file(template2);
+		
+		SDoublePlane template_binary_edgemap2 = convert_to_binary_edgemap(get_sobel(temp2));
+		SDoublePlane template_binary_edgemap3 = convert_to_binary_edgemap(get_sobel(temp3));
+		
+
+
+
+
+
+		
 
 
 		return symbols;
@@ -152,10 +115,51 @@ namespace {
 
 }
 
-EdgeTemplateDetector::EdgeTemplateDetector(const SDoublePlane& img): image(img) {
+EdgeTemplateDetector::EdgeTemplateDetector(const SDoublePlane& img, Type t): image(img), type(t) {
+	SDoublePlane image_binary_edgemap = convert_to_binary_edgemap(get_sobel(input));
+	
+	//calculating the the distance matrix D
+	std::cout<<"starting distance calculator.."<<std::endl;
+	D_mat = dist(image_binary_edgemap);
+	//SImageIO::write_png_file("music1_sobel_dist_matrix.png", D_mat, D_mat, D_mat);
+	//std::cout<<"wrote the distance matrix to  -  music1_dist_matrix"<<std::endl;
+
+	//reading directly from the dist_matrix image saved
+	//SDoublePlane D_mat = SImageIO::read_png_file("music1_dist_matrix.png");
+
+	
+	//calculating the scores
+	
 	
 }
 
-std::vector<DetectedSymbol> EdgeTemplateDetector::find(const SDoublePlane& input, double threshold) {
-	return ::score_using_edgemaps(image);
+std::vector<DetectedSymbol> EdgeTemplateDetector::find(const SDoublePlane& kernel, double threshold) {
+	std::cout<<"pushing the distance scores.."<<std::endl;
+	
+	SDoublePlane temp = SImageIO::read_png_file(kernel);
+	SDoublePlane template_binary_edgemap1 = convert_to_binary_edgemap(get_sobel(temp));
+
+	SDoublePlane dist_score = correlate(D_mat,template_binary_edgemap1);
+	SDoublePlane inverted = normalise(dist_score)*-1 + 255;
+	
+	//SImageIO::write_png_file("debug.png", inverted, inverted, inverted);
+	
+	//dist_score = threshold(dist_score, 300, THRESH_MAX, THRESH_ZERO);
+	std::vector<DetectedSymbol> symbols;
+	for (int i=0; i<inverted.rows(); i++) {
+		for (int j=0; j<inverted.cols(); j++) {
+			if (inverted[i][j] < 20) {
+				DetectedSymbol s;
+				s.row = i-3;
+				s.col = j-5;
+				s.width = 25;
+				s.height = 20;
+				s.type = (Type)2;
+				s.confidence = 0.7;
+				s.pitch = 'A';
+				symbols.push_back(s);
+			}
+		}
+	}
+	return symbols;
 }
