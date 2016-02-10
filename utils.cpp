@@ -1,6 +1,6 @@
 #include <algorithm>
 #include <numeric>
-//#include <algorithm>
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -230,6 +230,7 @@ SDoublePlane flipxy(SDoublePlane input) {
 }
 
 SDoublePlane normalise_kernel(const SDoublePlane& input) {
+	std::cout<<"Normalising kernel: "<<input.rows()<<","<<input.cols()<<std::endl;
 	debug_png("before-normalise-kernel.png", input);
 	if (input.cols()%2 == 1 && input.rows()%2 == 1) {
 		return input;
@@ -246,8 +247,11 @@ SDoublePlane normalise_kernel(const SDoublePlane& input) {
 	}
 
 	if (input.cols() + 1 == output.cols()) {
-		for (int i=0; i<output.rows(); i++) {
+		for (int i=0; i<input.rows(); i++) {
 			output[i][output.cols()-1] = input[i][input.cols()-1];
+		}
+		if (input.rows() + 1 == output.rows()) {
+			output[output.rows() - 1][output.cols() - 1] = input[input.rows()-1][input.cols()-1];
 		}
 	}
 
@@ -256,7 +260,26 @@ SDoublePlane normalise_kernel(const SDoublePlane& input) {
 }
 
 SDoublePlane non_maximum_suppression(const SDoublePlane& input) {
-	return input;
+	int nrows = input.rows(), ncols = input.cols();
+	SDoublePlane output(input);
+	for (int i=0; i<nrows; i++) {
+		for (int j=0; j<ncols; j++) {
+			double pixel = output[i][j];
+			if (i < nrows - 1 && pixel < input[i+1][j]) {
+				output[i][j] = 0;
+			}
+			else if (i > 0 && pixel < input[i-1][j]) {
+				output[i][j] = 0;
+			}
+			else if (j < ncols - 1 && pixel < input[i][j+1]) {
+				output[i][j] = 0;
+			}
+			else if (j > 0 && pixel < input[i][j-1]) {
+				output[i][j] = 0;
+			}
+		}
+	}
+	return output;
 }
 
 // Convolve an image with a separable convolution kernel
@@ -330,3 +353,4 @@ SDoublePlane convolve_general(const SDoublePlane &input, const SDoublePlane &fil
 	
 	return output;
 }
+
