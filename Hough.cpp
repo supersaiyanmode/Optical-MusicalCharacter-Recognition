@@ -1,6 +1,8 @@
 #include <cmath>
 #include <cstring>
 #include <iostream>
+#include <algorithm>
+#include <numeric>
 
 #include "Hough.h"
 #include "SImageIO.h"
@@ -91,20 +93,49 @@ std::vector<int> HoughLinesDetector::find(const SDoublePlane& input, const SDoub
 				continue;
 			double r = (2.0 * i / r_bins - 1.0) * max_r / 2.0;
 			double theta = max_angle * j / angle_bins;
-			std::cout<<"Found a line with parameter: r="<<r<<", angle="<<theta<<std::endl;
+			std::cout<<"Found a line with parameter: r="<<(int)(r+0.5)<<", angle="<<theta<<std::endl;
 
-			lines.push_back(r);
+			lines.push_back(int(r+0.5));
 		}
 	}
+	
+	// Group the lines! Max - min = config["houfh.group_max_delta"]
+	std::sort(lines.begin(), lines.end());
+	std::vector<std::vector<int> > groups;
+	int max_delta = config.get<double>("hough.group_max_delta");
+	
+	for (std::vector<int>::iterator it = lines.begin(); it != lines.end();) {
+		std::vector<int> group;
+		int curMin = *it;
+		group.push_back(*it);
+
+		while (++it != lines.end()) {
+			if (*it - curMin <= max_delta) {
+				group.push_back(*it);
+			} else {
+				break;
+			}
+		}
+
+		groups.push_back(group);
+	}
+
+	std::vector<int> result;
+	for (std::vector<std::vector<int> >::iterator it = groups.begin(); it != groups.end(); it++) {
+		result.push_back(std::accumulate(it->begin(), it->end(), 0)/it->size()); //Average in group.
+	}
+	std::cout<<"Done with averaging.."<<std::endl;
 
 	SDoublePlane paintR(orig), paintG(orig), paintB(orig);
 	
-	for (std::vector<int>::iterator it = lines.begin(); it != lines.end(); it++) {
+	for (std::vector<int>::iterator it = result.begin(); it != result.end(); it++) {
+		std::cout<<"Emitting a line with offset: "<<*it<<std::endl;
 		draw_line(paintR, paintG, paintB, *it, 0, *it, input.cols()-1, 0, 0, 255, 3);
 	}
+	std::cout<<"Done with painting.."<<std::endl;
 
 	SImageIO::write_png_file("staves.png", paintR, paintG, paintB);
 
-	return lines;
+	return result;
 }
 
