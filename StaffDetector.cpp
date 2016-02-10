@@ -13,15 +13,17 @@ StaffDetector::StaffDetector(const std::vector<int>& offsets) {
     }
 
 	//Average the smallest 5 diff_offsets to get staff height;
+	std::sort(diff_offsets.begin(), diff_offsets.end());
     _staff_height = std::accumulate(diff_offsets.begin(), diff_offsets.begin() + 5, 0) / 5.0;
 
-	for (int i=1; i <= diff_offsets.size();) {
+	for (int i=0; i < lines.size();) {
 		std::vector<int> curGroup;
-		curGroup.push_back(lines[i-1]);
-		while (++i < diff_offsets.size()) {
-			curGroup.push_back(lines[i-1]);
-			if (diff_offsets[i] > 3 * _staff_height) {
+		curGroup.push_back(lines[i]);
+		while (++i < lines.size()) {
+			if (lines[i] - lines[i-1] > 3 * _staff_height) {
 				break;
+			} else {
+				curGroup.push_back(lines[i]);
 			}
 		}
 		_groups.push_back(curGroup);
